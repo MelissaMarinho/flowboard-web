@@ -34,9 +34,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{project.name}</h1>
           {project.description && (
-            <p className="mt-1 text-sm text-gray-500">{project.description}</p>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -46,9 +46,9 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       </div>
 
       {project.aiSummaries[0] && (
-        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-indigo-600">AI Summary</p>
-          <p className="mt-1 text-sm text-gray-700">{project.aiSummaries[0].content}</p>
+        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950">
+          <p className="text-xs font-medium uppercase tracking-wide text-indigo-600 dark:text-indigo-400">AI Summary</p>
+          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{project.aiSummaries[0].content}</p>
         </div>
       )}
 

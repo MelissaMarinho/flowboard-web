@@ -66,17 +66,17 @@ export default function InviteMemberModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Team Members</h2>
-            <p className="text-xs text-gray-400">{workspaceName}</p>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Team Members</h2>
+            <p className="text-xs text-gray-400 dark:text-gray-500">{workspaceName}</p>
           </div>
           <button
             onClick={onClose}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -90,7 +90,7 @@ export default function InviteMemberModal({
             value={email}
             onChange={(e) => { setEmail(e.target.value); setSuccess(""); setError(""); }}
             placeholder="colleague@example.com"
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           />
           <button
             type="submit"
@@ -107,31 +107,31 @@ export default function InviteMemberModal({
 
         {/* Members list */}
         <div>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
             Members ({members.length})
           </p>
           {fetchingMembers ? (
             <div className="space-y-2">
               {[1, 2].map((i) => (
-                <div key={i} className="h-12 animate-pulse rounded-xl bg-gray-100" />
+                <div key={i} className="h-12 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-700" />
               ))}
             </div>
           ) : (
             <ul className="space-y-1">
               {members.map((m) => (
-                <li key={m.id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-gray-50">
+                <li key={m.id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">
                   {m.user.image ? (
                     <img src={m.user.image} alt="" className="h-8 w-8 rounded-full" />
                   ) : (
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
                       {m.user.name?.[0]?.toUpperCase() ?? "?"}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-900">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
                       {m.user.name ?? "Unknown"}
                     </p>
-                    <p className="truncate text-xs text-gray-500">{m.user.email}</p>
+                    <p className="truncate text-xs text-gray-500 dark:text-gray-400">{m.user.email}</p>
                   </div>
                   <span
                     className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${

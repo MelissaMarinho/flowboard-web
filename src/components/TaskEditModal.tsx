@@ -75,14 +75,14 @@ export default function TaskEditModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900">Edit Task</h2>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Edit Task</h2>
           <button
             onClick={onClose}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -90,36 +90,36 @@ export default function TaskEditModal({
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="edit-title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label htmlFor="edit-title" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Title</label>
             <input
               id="edit-title"
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
 
           <div>
-            <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Description</label>
             <textarea
               id="edit-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Add a description…"
-              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="edit-priority" className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label htmlFor="edit-priority" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Priority</label>
               <select
                 id="edit-priority"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Task["priority"])}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
                 {PRIORITIES.map((p) => (
                   <option key={p} value={p}>
@@ -130,12 +130,12 @@ export default function TaskEditModal({
             </div>
 
             <div>
-              <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Status</label>
               <select
                 id="edit-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as Task["status"])}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
                 {STATUSES.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -148,12 +148,12 @@ export default function TaskEditModal({
 
           {members.length > 0 && (
             <div>
-              <label htmlFor="edit-assignee" className="block text-sm font-medium text-gray-700 mb-1">Assignee</label>
+              <label htmlFor="edit-assignee" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Assignee</label>
               <select
                 id="edit-assignee"
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
                 <option value="">Unassigned</option>
                 {members.map((m) => (
@@ -166,13 +166,13 @@ export default function TaskEditModal({
           )}
 
           <div>
-            <label htmlFor="edit-duedate" className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+            <label htmlFor="edit-duedate" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Due Date</label>
             <input
               id="edit-duedate"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
 
@@ -182,7 +182,7 @@ export default function TaskEditModal({
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+            className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
           >
             Cancel
           </button>

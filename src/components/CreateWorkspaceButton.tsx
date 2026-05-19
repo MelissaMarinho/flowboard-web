@@ -37,26 +37,26 @@ export default function CreateWorkspaceButton() {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Create workspace</h2>
-              <button onClick={() => setOpen(false)} className="rounded p-1 hover:bg-gray-100">
-                <X className="h-4 w-4 text-gray-500" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Create workspace</h2>
+              <button onClick={() => setOpen(false)} className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-800">
+                <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="mt-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                 <input
                   autoFocus
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. My Agency"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+                <button type="button" onClick={() => setOpen(false)} className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800">
                   Cancel
                 </button>
                 <button type="submit" disabled={loading} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50">

@@ -20,12 +20,12 @@ export default function StatsCards({ stats }: { stats: Stats }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {cards(stats).map(({ label, value, icon: Icon, color }) => (
-        <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5">
+        <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
           <div className={`inline-flex rounded-lg p-2 ${color}`}>
             <Icon className="h-4 w-4" />
           </div>
-          <p className="mt-3 text-2xl font-bold text-gray-900">{value}</p>
-          <p className="text-xs text-gray-500">{label}</p>
+          <p className="mt-3 text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
         </div>
       ))}
     </div>

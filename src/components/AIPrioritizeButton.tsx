@@ -71,7 +71,7 @@ export default function AIPrioritizeButton({ projectId }: { projectId: string })
       <button
         onClick={generate}
         disabled={loading}
-        className="flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-700 dark:bg-violet-950 dark:text-violet-300 dark:hover:bg-violet-900 transition-colors"
       >
         <Wand2 className="h-4 w-4" />
         {loading ? "Analysing…" : "AI Prioritize"}
@@ -83,14 +83,14 @@ export default function AIPrioritizeButton({ projectId }: { projectId: string })
           onClick={() => { setSuggestions(null); setError(""); }}
         >
           <div
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900">AI Priority Suggestions</h2>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">AI Priority Suggestions</h2>
               <button
                 onClick={() => { setSuggestions(null); setError(""); }}
-                className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -101,13 +101,13 @@ export default function AIPrioritizeButton({ projectId }: { projectId: string })
             ) : (
               <>
                 <p className="mb-4 text-sm text-gray-500">
-                  Review the suggested priorities below, then apply them all at once.
+                  <span className="text-gray-500 dark:text-gray-400">Review the suggested priorities below, then apply them all at once.</span>
                 </p>
                 <ul className="space-y-3 max-h-80 overflow-y-auto">
                   {suggestions!.map((s) => (
                     <li
                       key={s.id}
-                      className="flex items-start gap-3 rounded-xl border border-gray-100 p-3"
+                      className="flex items-start gap-3 rounded-xl border border-gray-100 p-3 dark:border-gray-700"
                     >
                       <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-violet-500" />
                       <div className="flex-1 min-w-0">
@@ -117,9 +117,9 @@ export default function AIPrioritizeButton({ projectId }: { projectId: string })
                           >
                             {s.suggestedPriority}
                           </span>
-                          <span className="text-xs text-gray-400 font-mono truncate">{s.id.slice(-8)}</span>
+                          <span className="text-xs text-gray-400 font-mono truncate dark:text-gray-500">{s.id.slice(-8)}</span>
                         </div>
-                        <p className="mt-1 text-xs text-gray-500">{s.reason}</p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{s.reason}</p>
                       </div>
                     </li>
                   ))}
@@ -128,7 +128,7 @@ export default function AIPrioritizeButton({ projectId }: { projectId: string })
                 <div className="mt-5 flex justify-end gap-2">
                   <button
                     onClick={() => setSuggestions(null)}
-                    className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+                    className="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
                   >
                     Dismiss
                   </button>

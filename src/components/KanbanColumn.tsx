@@ -85,8 +85,10 @@ export default function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col rounded-2xl border bg-white p-4 transition-colors ${
-        isOver ? "border-indigo-300 bg-indigo-50" : "border-gray-200"
+      className={`flex flex-col rounded-2xl border p-4 transition-colors ${
+        isOver
+          ? "border-indigo-300 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-950"
+          : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
       }`}
     >
       <div className="mb-4 flex items-center justify-between">
@@ -94,11 +96,11 @@ export default function KanbanColumn({
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${colorMap[column.id]}`}>
             {column.label}
           </span>
-          <span className="text-xs text-gray-400">{tasks.length}</span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">{tasks.length}</span>
         </div>
         <button
           onClick={() => setAdding(true)}
-          className="rounded p-1 hover:bg-gray-100 transition-colors"
+          className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           <Plus className="h-4 w-4 text-gray-500" />
         </button>
@@ -112,7 +114,7 @@ export default function KanbanColumn({
         {tasks.length === 0 && !adding && (
           <button
             onClick={() => setAdding(true)}
-            className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 py-6 text-center hover:border-indigo-200 hover:bg-indigo-50/40 transition-colors group"
+            className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 py-6 text-center hover:border-indigo-200 hover:bg-indigo-50/40 dark:border-gray-700 dark:hover:border-indigo-700 dark:hover:bg-indigo-950/40 transition-colors group"
           >
             <Plus className="h-4 w-4 text-gray-300 group-hover:text-indigo-400 transition-colors" />
             <span className="mt-1 text-xs text-gray-400 group-hover:text-indigo-500 transition-colors">
@@ -129,14 +131,14 @@ export default function KanbanColumn({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Task title…"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           />
 
           <div className="grid grid-cols-2 gap-2">
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as Task["priority"])}
-              className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -149,7 +151,7 @@ export default function KanbanColumn({
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             />
           </div>
 
@@ -157,7 +159,7 @@ export default function KanbanColumn({
             <select
               value={assigneeId}
               onChange={(e) => setAssigneeId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             >
               <option value="">Unassigned</option>
               {members.map((m) => (
@@ -181,7 +183,7 @@ export default function KanbanColumn({
             <button
               type="button"
               onClick={cancel}
-              className="rounded-lg px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 transition-colors"
+              className="rounded-lg px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
             >
               Cancel
             </button>

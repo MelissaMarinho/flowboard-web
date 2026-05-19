@@ -62,18 +62,18 @@ export default function TaskCard({
         style={style}
         {...attributes}
         onClick={() => setEditing(true)}
-        className="group flex cursor-pointer flex-col gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm hover:border-indigo-200 transition-colors"
+        className="group flex cursor-pointer flex-col gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm hover:border-indigo-200 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-indigo-600 transition-colors"
       >
         <div className="flex items-start gap-2">
           <span
             {...listeners}
             onClick={(e) => e.stopPropagation()}
-            className="mt-0.5 flex-shrink-0 cursor-grab text-gray-300 hover:text-gray-400 active:cursor-grabbing"
+            className="mt-0.5 flex-shrink-0 cursor-grab text-gray-300 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-500 active:cursor-grabbing"
           >
             <GripVertical className="h-4 w-4" />
           </span>
 
-          <p className="flex-1 text-sm font-medium leading-snug text-gray-800">{task.title}</p>
+          <p className="flex-1 text-sm font-medium leading-snug text-gray-800 dark:text-gray-100">{task.title}</p>
 
           <button
             onClick={deleteTask}
@@ -84,7 +84,7 @@ export default function TaskCard({
         </div>
 
         {task.description && (
-          <p className="ml-6 line-clamp-2 text-xs text-gray-400">{task.description}</p>
+          <p className="ml-6 line-clamp-2 text-xs text-gray-400 dark:text-gray-500">{task.description}</p>
         )}
 
         <div className="ml-6 flex items-center justify-between">
@@ -93,7 +93,7 @@ export default function TaskCard({
           </span>
           <div className="flex items-center gap-2">
             {due && (
-              <span className={`text-xs ${due.overdue ? "font-medium text-red-500" : "text-gray-400"}`}>
+              <span className={`text-xs ${due.overdue ? "font-medium text-red-500" : "text-gray-400 dark:text-gray-500"}`}>
                 {due.overdue ? "Overdue · " : ""}{due.label}
               </span>
             )}
@@ -108,7 +108,7 @@ export default function TaskCard({
             {task.assignee && !task.assignee.image && (
               <div
                 title={task.assignee.name ?? ""}
-                className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700"
+                className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300"
               >
                 {task.assignee.name?.[0]?.toUpperCase() ?? "?"}
               </div>

@@ -60,20 +60,20 @@ export default function ActivityFeed({ projectId }: { projectId: string }) {
   }, [projectId]);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-900">
       <div className="mb-4 flex items-center gap-2">
-        <Activity className="h-4 w-4 text-gray-400" />
-        <h2 className="text-sm font-semibold text-gray-900">Activity</h2>
+        <Activity className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Activity</h2>
       </div>
 
       {loading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex gap-3">
-              <div className="h-6 w-6 animate-pulse rounded-full bg-gray-100" />
+              <div className="h-6 w-6 animate-pulse rounded-full bg-gray-100 dark:bg-gray-700" />
               <div className="flex-1 space-y-1.5">
-                <div className="h-3 w-3/4 animate-pulse rounded bg-gray-100" />
-                <div className="h-2.5 w-1/4 animate-pulse rounded bg-gray-100" />
+                <div className="h-3 w-3/4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" />
+                <div className="h-2.5 w-1/4 animate-pulse rounded bg-gray-100 dark:bg-gray-700" />
               </div>
             </div>
           ))}
@@ -81,7 +81,7 @@ export default function ActivityFeed({ projectId }: { projectId: string }) {
       )}
 
       {!loading && activities.length === 0 && (
-        <p className="text-sm text-gray-400">No activity yet. Create a task to get started.</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500">No activity yet. Create a task to get started.</p>
       )}
 
       {!loading && activities.length > 0 && (
@@ -93,20 +93,20 @@ export default function ActivityFeed({ projectId }: { projectId: string }) {
               <li key={a.id} className="flex gap-3">
                 {/* Timeline line */}
                 <div className="flex flex-col items-center">
-                  <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 ${config.color}`}>
+                  <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 ${config.color}`}>
                     <Icon className="h-3.5 w-3.5" />
                   </div>
                   {i < activities.length - 1 && (
-                    <div className="mt-1 w-px flex-1 bg-gray-100" />
+                    <div className="mt-1 w-px flex-1 bg-gray-100 dark:bg-gray-700" />
                   )}
                 </div>
 
                 <div className="pb-4 min-w-0">
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     <span className="font-medium">{a.user.name ?? "Someone"}</span>{" "}
                     <span>{config.label(a.meta as Record<string, unknown>)}</span>
                   </p>
-                  <p className="mt-0.5 text-xs text-gray-400">{timeAgo(a.createdAt)}</p>
+                  <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">{timeAgo(a.createdAt)}</p>
                 </div>
               </li>
             );
