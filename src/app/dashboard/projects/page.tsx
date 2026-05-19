@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FolderKanban } from "lucide-react";
 import CreateWorkspaceButton from "@/components/CreateWorkspaceButton";
 import CreateProjectButton from "@/components/CreateProjectButton";
+import WorkspaceActions from "@/components/WorkspaceActions";
 
 export default async function ProjectsPage() {
   const session = await auth();
@@ -30,17 +31,25 @@ export default async function ProjectsPage() {
         <CreateWorkspaceButton />
       </div>
 
-      {memberships.map(({ workspace }) => (
+      {memberships.map(({ workspace, role }) => (
         <div key={workspace.id}>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
-            {workspace.name}
-          </h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+              {workspace.name}
+            </h2>
+            <WorkspaceActions
+              workspaceId={workspace.id}
+              workspaceName={workspace.name}
+              isOwner={role === "OWNER"}
+            />
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {workspace.projects.map((project) => (
               <Link
                 key={project.id}
                 href={`/dashboard/projects/${project.id}`}
-                className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-5 hover:border-indigo-200 hover:shadow-sm transition-all"
+                className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-5 transition-all hover:border-indigo-200 hover:shadow-sm"
               >
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-indigo-50 p-2">
@@ -49,7 +58,7 @@ export default async function ProjectsPage() {
                   <h3 className="font-semibold text-gray-900">{project.name}</h3>
                 </div>
                 {project.description && (
-                  <p className="text-sm text-gray-500 line-clamp-2">{project.description}</p>
+                  <p className="line-clamp-2 text-sm text-gray-500">{project.description}</p>
                 )}
                 <span className="mt-auto text-xs text-gray-400">{project._count.tasks} tasks</span>
               </Link>

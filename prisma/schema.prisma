@@ -20,6 +20,7 @@ model User {
   memberships      WorkspaceMember[]
   assignedTasks    Task[]
   AISummary        AISummary[]
+  activities       ActivityLog[]
 }
 
 model Account {
@@ -90,9 +91,10 @@ model Project {
   workspaceId String
   createdAt   DateTime @default(now())
 
-  workspace  Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  tasks      Task[]
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks       Task[]
   aiSummaries AISummary[]
+  activities  ActivityLog[]
 }
 
 model Task {
@@ -137,4 +139,25 @@ enum TaskPriority {
   LOW
   MEDIUM
   HIGH
+}
+
+model ActivityLog {
+  id        String       @id @default(cuid())
+  projectId String
+  userId    String
+  type      ActivityType
+  meta      Json         @default("{}")
+  createdAt DateTime     @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt(sort: Desc)])
+}
+
+enum ActivityType {
+  TASK_CREATED
+  TASK_UPDATED
+  TASK_DELETED
+  AI_SUMMARY_GENERATED
 }

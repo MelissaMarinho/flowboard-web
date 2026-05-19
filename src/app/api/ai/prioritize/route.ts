@@ -15,17 +15,19 @@ export async function POST(req: Request) {
   });
   if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
+  if (project.tasks.length === 0) {
+    return NextResponse.json({ suggestions: [] });
+  }
+
   const aiServiceUrl = process.env.AI_SERVICE_URL ?? "http://localhost:8000";
 
-  const aiRes = await fetch(`${aiServiceUrl}/summarize`, {
+  const aiRes = await fetch(`${aiServiceUrl}/prioritize`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      project_name: project.name,
       tasks: project.tasks.map((t) => ({
         id: t.id,
         title: t.title,
-        status: t.status,
         priority: t.priority,
         dueDate: t.dueDate,
       })),
@@ -34,22 +36,6 @@ export async function POST(req: Request) {
 
   if (!aiRes.ok) return NextResponse.json({ error: "AI service error" }, { status: 502 });
 
-  const { summary } = await aiRes.json();
-
-  const saved = await prisma.aISummary.create({
-    data: { projectId, content: summary, createdBy: session.user.id },
-  });
-
-  prisma.activityLog
-    .create({
-      data: {
-        projectId,
-        userId: session.user.id,
-        type: "AI_SUMMARY_GENERATED",
-        meta: { projectName: project.name },
-      },
-    })
-    .catch(() => {});
-
-  return NextResponse.json(saved, { status: 201 });
+  const { suggestions } = await aiRes.json();
+  return NextResponse.json({ suggestions });
 }

@@ -9,6 +9,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const { id } = await params;
   const body = await req.json();
 
+  // Fetch current task to detect what changed
+  const current = await prisma.task.findUnique({ where: { id } });
+  if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
   const task = await prisma.task.update({
     where: { id },
     data: {
@@ -22,6 +26,31 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     include: { assignee: { select: { id: true, name: true, image: true } } },
   });
 
+  // Build change summary
+  const changes: string[] = [];
+  if (body.status && body.status !== current.status) changes.push(`status → ${body.status}`);
+  if (body.priority && body.priority !== current.priority) changes.push(`priority → ${body.priority}`);
+  if (body.title && body.title !== current.title) changes.push("title updated");
+  if (body.assigneeId !== undefined && body.assigneeId !== current.assigneeId) {
+    changes.push(body.assigneeId ? "assigned" : "unassigned");
+  }
+  if (body.dueDate !== undefined && body.dueDate !== current.dueDate?.toISOString().split("T")[0]) {
+    changes.push(body.dueDate ? `due → ${body.dueDate}` : "due date cleared");
+  }
+
+  if (changes.length > 0) {
+    prisma.activityLog
+      .create({
+        data: {
+          projectId: current.projectId,
+          userId: session.user.id,
+          type: "TASK_UPDATED",
+          meta: { taskId: id, taskTitle: task.title, changes },
+        },
+      })
+      .catch(() => {});
+  }
+
   return NextResponse.json(task);
 }
 
@@ -30,7 +59,23 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
+
+  // Fetch task before deleting so we can log it
+  const task = await prisma.task.findUnique({ where: { id } });
+  if (!task) return new NextResponse(null, { status: 204 });
+
   await prisma.task.delete({ where: { id } });
+
+  prisma.activityLog
+    .create({
+      data: {
+        projectId: task.projectId,
+        userId: session.user.id,
+        type: "TASK_DELETED",
+        meta: { taskTitle: task.title },
+      },
+    })
+    .catch(() => {});
 
   return new NextResponse(null, { status: 204 });
 }

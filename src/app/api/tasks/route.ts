@@ -39,5 +39,17 @@ export async function POST(req: Request) {
     include: { assignee: { select: { id: true, name: true, image: true } } },
   });
 
+  // Log activity (non-blocking)
+  prisma.activityLog
+    .create({
+      data: {
+        projectId,
+        userId: session.user.id,
+        type: "TASK_CREATED",
+        meta: { taskId: task.id, taskTitle: title },
+      },
+    })
+    .catch(() => {});
+
   return NextResponse.json(task, { status: 201 });
 }
