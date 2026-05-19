@@ -90,8 +90,9 @@ export default function TaskEditModal({
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label htmlFor="edit-title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
             <input
+              id="edit-title"
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -100,8 +101,9 @@ export default function TaskEditModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
+              id="edit-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -112,8 +114,9 @@ export default function TaskEditModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label htmlFor="edit-priority" className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
               <select
+                id="edit-priority"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Task["priority"])}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -127,8 +130,9 @@ export default function TaskEditModal({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label htmlFor="edit-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
+                id="edit-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as Task["status"])}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -144,8 +148,9 @@ export default function TaskEditModal({
 
           {members.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Assignee</label>
+              <label htmlFor="edit-assignee" className="block text-sm font-medium text-gray-700 mb-1">Assignee</label>
               <select
+                id="edit-assignee"
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -161,8 +166,9 @@ export default function TaskEditModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+            <label htmlFor="edit-duedate" className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
             <input
+              id="edit-duedate"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
