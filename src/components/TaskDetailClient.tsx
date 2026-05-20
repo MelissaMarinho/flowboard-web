@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Pencil, PlusCircle, Trash2, Sparkles } from "lucide-react";
 import TaskEditModal from "./TaskEditModal";
+import TaskComments from "./TaskComments";
 import LabelBadge from "./LabelBadge";
 import type { TaskWithAssignee, MemberUser, WorkspaceLabel } from "./TaskEditModal";
 
@@ -86,6 +87,7 @@ export default function TaskDetailClient({
   workspaceLabels,
   workspaceId,
   projectId,
+  currentUserId,
 }: {
   task: TaskWithAssignee;
   activities: ActivityEntry[];
@@ -93,6 +95,7 @@ export default function TaskDetailClient({
   workspaceLabels: WorkspaceLabel[];
   workspaceId: string;
   projectId: string;
+  currentUserId: string;
 }) {
   const [task, setTask] = useState<TaskWithAssignee>(initialTask);
   const [editing, setEditing] = useState(false);
@@ -145,6 +148,8 @@ export default function TaskDetailClient({
               <p className="text-sm italic text-gray-400 dark:text-gray-500">No description provided.</p>
             )}
           </div>
+
+          <TaskComments taskId={task.id} currentUserId={currentUserId} />
 
           <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
             <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">

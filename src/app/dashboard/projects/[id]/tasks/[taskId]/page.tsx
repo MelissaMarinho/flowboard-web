@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 import TaskDetailClient from "@/components/TaskDetailClient";
 import type { TaskWithAssignee } from "@/components/TaskEditModal";
 
@@ -9,6 +10,8 @@ export default async function TaskDetailPage({
   params: Promise<{ id: string; taskId: string }>;
 }) {
   const { id: projectId, taskId } = await params;
+  const session = await auth();
+  const currentUserId = session?.user?.id ?? "";
 
   const task = await prisma.task.findUnique({
     where: { id: taskId, projectId },
@@ -66,6 +69,7 @@ export default async function TaskDetailPage({
       workspaceLabels={workspaceLabels}
       workspaceId={workspaceId}
       projectId={projectId}
+      currentUserId={currentUserId}
     />
   );
 }
