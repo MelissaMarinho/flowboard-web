@@ -25,12 +25,14 @@ function formatDueDate(date: Date | string | null): { label: string; overdue: bo
 
 export default function TaskCard({
   task,
+  projectKey,
   members = [],
   workspaceLabels = [],
   workspaceId,
   setTasks,
 }: {
   task: TaskWithAssignee;
+  projectKey?: string;
   members?: MemberUser[];
   workspaceLabels?: WorkspaceLabel[];
   workspaceId?: string;
@@ -110,9 +112,16 @@ export default function TaskCard({
         )}
 
         <div className="ml-6 flex items-center justify-between">
-          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[task.priority]}`}>
-            {task.priority}
-          </span>
+          <div className="flex items-center gap-2">
+            {projectKey && (task as unknown as { number: number }).number > 0 && (
+              <span className="font-mono text-xs text-gray-400 dark:text-gray-500">
+                {projectKey}-{(task as unknown as { number: number }).number}
+              </span>
+            )}
+            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[task.priority]}`}>
+              {task.priority}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             {due && (
               <span className={`text-xs ${due.overdue ? "font-medium text-red-500" : "text-gray-400 dark:text-gray-500"}`}>

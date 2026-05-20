@@ -70,6 +70,8 @@ export default async function TaskDetailPage({
       workspaceId={workspaceId}
       projectId={projectId}
       currentUserId={currentUserId}
+      projectKey={task.project.key ?? undefined}
+      taskNumber={task.number}
     />
   );
 }

@@ -20,12 +20,14 @@ type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 export default function KanbanBoard({
   projectId,
   workspaceId,
+  projectKey,
   initialTasks,
   members = [],
   workspaceLabels = [],
 }: {
   projectId: string;
   workspaceId?: string;
+  projectKey?: string;
   initialTasks: TaskWithAssignee[];
   members?: MemberUser[];
   workspaceLabels?: WorkspaceLabel[];
@@ -172,6 +174,7 @@ export default function KanbanBoard({
                   column={col}
                   tasks={colTasks}
                   projectId={projectId}
+                  projectKey={projectKey}
                   members={members}
                   workspaceLabels={workspaceLabels}
                   workspaceId={workspaceId}

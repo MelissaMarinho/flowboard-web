@@ -63,6 +63,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       <KanbanBoard
         projectId={project.id}
         workspaceId={project.workspace.id}
+        projectKey={project.key ?? undefined}
         initialTasks={project.tasks}
         members={members}
         workspaceLabels={workspaceLabels}

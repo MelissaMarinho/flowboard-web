@@ -29,20 +29,27 @@ export async function POST(req: Request) {
   const { title, description, status, priority, projectId, assigneeId, dueDate } = await req.json();
   if (!title || !projectId) return NextResponse.json({ error: "title and projectId required" }, { status: 400 });
 
-  const task = await prisma.task.create({
-    data: {
-      title,
-      description,
-      status: status ?? "TODO",
-      priority: priority ?? "MEDIUM",
-      projectId,
-      assigneeId: assigneeId ?? null,
-      dueDate: dueDate ? new Date(dueDate) : null,
-    },
-    include: {
-      assignee: { select: { id: true, name: true, image: true } },
-      labels: { include: { label: { select: { id: true, name: true, color: true } } } },
-    },
+  const task = await prisma.$transaction(async (tx) => {
+    const project = await tx.project.update({
+      where: { id: projectId },
+      data: { taskCount: { increment: 1 } },
+    });
+    return tx.task.create({
+      data: {
+        title,
+        description,
+        status: status ?? "TODO",
+        priority: priority ?? "MEDIUM",
+        projectId,
+        assigneeId: assigneeId ?? null,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        number: project.taskCount,
+      },
+      include: {
+        assignee: { select: { id: true, name: true, image: true } },
+        labels: { include: { label: { select: { id: true, name: true, color: true } } } },
+      },
+    });
   });
 
   // Log activity (non-blocking)
@@ -50,7 +57,7 @@ export async function POST(req: Request) {
     .create({
       data: {
         projectId,
-        userId: session.user.id,
+        userId: session.user!.id,
         type: "TASK_CREATED",
         meta: { taskId: task.id, taskTitle: title },
       },

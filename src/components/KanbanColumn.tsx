@@ -24,6 +24,7 @@ export default function KanbanColumn({
   column,
   tasks,
   projectId,
+  projectKey,
   members = [],
   workspaceLabels = [],
   workspaceId,
@@ -32,6 +33,7 @@ export default function KanbanColumn({
   column: Column;
   tasks: TaskWithAssignee[];
   projectId: string;
+  projectKey?: string;
   members?: MemberUser[];
   workspaceLabels?: WorkspaceLabel[];
   workspaceId?: string;
@@ -110,7 +112,7 @@ export default function KanbanColumn({
 
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} members={members} workspaceLabels={workspaceLabels} workspaceId={workspaceId} setTasks={setTasks} />
+          <TaskCard key={task.id} task={task} projectKey={projectKey} members={members} workspaceLabels={workspaceLabels} workspaceId={workspaceId} setTasks={setTasks} />
         ))}
 
         {tasks.length === 0 && !adding && (

@@ -88,6 +88,8 @@ export default function TaskDetailClient({
   workspaceId,
   projectId,
   currentUserId,
+  projectKey,
+  taskNumber,
 }: {
   task: TaskWithAssignee;
   activities: ActivityEntry[];
@@ -96,6 +98,8 @@ export default function TaskDetailClient({
   workspaceId: string;
   projectId: string;
   currentUserId: string;
+  projectKey?: string;
+  taskNumber?: number;
 }) {
   const [task, setTask] = useState<TaskWithAssignee>(initialTask);
   const [editing, setEditing] = useState(false);
@@ -122,6 +126,11 @@ export default function TaskDetailClient({
 
       {/* Title + labels */}
       <div>
+        {projectKey && taskNumber && taskNumber > 0 && (
+          <p className="mb-1 font-mono text-sm font-medium text-indigo-500 dark:text-indigo-400">
+            {projectKey}-{taskNumber}
+          </p>
+        )}
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{task.title}</h1>
         {task.labels && task.labels.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
