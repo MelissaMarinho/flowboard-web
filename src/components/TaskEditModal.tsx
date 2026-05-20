@@ -1,10 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { X } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, Tag, Plus, Check } from "lucide-react";
 import type { Task } from "@prisma/client";
+import LabelBadge from "./LabelBadge";
 
-type TaskWithAssignee = Task & { assignee: { id: string; name: string | null; image: string | null } | null };
+export interface WorkspaceLabel {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export type TaskLabel = { label: WorkspaceLabel };
+
+type TaskWithAssignee = Task & {
+  assignee: { id: string; name: string | null; image: string | null } | null;
+  labels?: TaskLabel[];
+};
+
+export type { TaskWithAssignee };
 
 export interface MemberUser {
   id: string;
@@ -19,14 +33,24 @@ const STATUSES = [
   { value: "DONE", label: "Done" },
 ] as const;
 
+const PRESET_COLORS = [
+  "#6366f1", "#8b5cf6", "#ec4899", "#ef4444",
+  "#f97316", "#f59e0b", "#22c55e", "#14b8a6",
+  "#0ea5e9", "#6b7280",
+];
+
 export default function TaskEditModal({
   task,
   members = [],
+  workspaceLabels = [],
+  workspaceId,
   onClose,
   onSave,
 }: {
   task: TaskWithAssignee;
   members?: MemberUser[];
+  workspaceLabels?: WorkspaceLabel[];
+  workspaceId?: string;
   onClose: () => void;
   onSave: (updated: TaskWithAssignee) => void;
 }) {
@@ -38,8 +62,57 @@ export default function TaskEditModal({
   const [dueDate, setDueDate] = useState(
     task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""
   );
+  const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>(
+    (task.labels ?? []).map((tl) => tl.label.id)
+  );
+  const [availableLabels, setAvailableLabels] = useState<WorkspaceLabel[]>(workspaceLabels);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  // Label picker state
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [newLabelName, setNewLabelName] = useState("");
+  const [newLabelColor, setNewLabelColor] = useState(PRESET_COLORS[0]);
+  const [creatingLabel, setCreatingLabel] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Close picker on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function toggleLabel(id: string) {
+    setSelectedLabelIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }
+
+  async function createLabel() {
+    if (!newLabelName.trim() || !workspaceId) return;
+    setCreatingLabel(true);
+    try {
+      const res = await fetch(`/api/workspaces/${workspaceId}/labels`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newLabelName.trim(), color: newLabelColor }),
+      });
+      if (!res.ok) throw new Error("Failed to create label");
+      const created: WorkspaceLabel = await res.json();
+      setAvailableLabels((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      setSelectedLabelIds((prev) => [...prev, created.id]);
+      setNewLabelName("");
+    } catch {
+      // silently ignore
+    } finally {
+      setCreatingLabel(false);
+    }
+  }
 
   async function handleSave() {
     if (!title.trim()) return;
@@ -56,6 +129,7 @@ export default function TaskEditModal({
           status,
           assigneeId: assigneeId || null,
           dueDate: dueDate || null,
+          labelIds: selectedLabelIds,
         }),
       });
       if (!res.ok) throw new Error("Failed to save");
@@ -69,13 +143,15 @@ export default function TaskEditModal({
     }
   }
 
+  const selectedLabels = availableLabels.filter((l) => selectedLabelIds.includes(l.id));
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
@@ -122,9 +198,7 @@ export default function TaskEditModal({
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
                 {PRIORITIES.map((p) => (
-                  <option key={p} value={p}>
-                    {p.charAt(0) + p.slice(1).toLowerCase()}
-                  </option>
+                  <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>
                 ))}
               </select>
             </div>
@@ -138,9 +212,7 @@ export default function TaskEditModal({
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               >
                 {STATUSES.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
+                  <option key={s.value} value={s.value}>{s.label}</option>
                 ))}
               </select>
             </div>
@@ -157,9 +229,7 @@ export default function TaskEditModal({
               >
                 <option value="">Unassigned</option>
                 {members.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name ?? m.id}
-                  </option>
+                  <option key={m.id} value={m.id}>{m.name ?? m.id}</option>
                 ))}
               </select>
             </div>
@@ -174,6 +244,93 @@ export default function TaskEditModal({
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             />
+          </div>
+
+          {/* Labels */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-300">Labels</label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {selectedLabels.map((l) => (
+                <LabelBadge
+                  key={l.id}
+                  name={l.name}
+                  color={l.color}
+                  onRemove={() => toggleLabel(l.id)}
+                />
+              ))}
+            </div>
+
+            {/* Picker */}
+            <div className="relative" ref={pickerRef}>
+              <button
+                type="button"
+                onClick={() => setPickerOpen((o) => !o)}
+                className="flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 px-3 py-1.5 text-xs text-gray-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-gray-600 dark:text-gray-400 dark:hover:border-indigo-700 dark:hover:text-indigo-400 transition-colors"
+              >
+                <Tag className="h-3 w-3" />
+                Add label
+              </button>
+
+              {pickerOpen && (
+                <div className="absolute left-0 top-full z-10 mt-1 w-56 rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                  {/* Existing labels */}
+                  {availableLabels.length > 0 && (
+                    <ul className="max-h-40 overflow-y-auto p-1">
+                      {availableLabels.map((l) => (
+                        <li key={l.id}>
+                          <button
+                            type="button"
+                            onClick={() => toggleLabel(l.id)}
+                            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                          >
+                            <span className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: l.color }} />
+                            <span className="flex-1 truncate text-left text-gray-700 dark:text-gray-300">{l.name}</span>
+                            {selectedLabelIds.includes(l.id) && (
+                              <Check className="h-3.5 w-3.5 flex-shrink-0 text-indigo-500" />
+                            )}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Create new label */}
+                  {workspaceId && (
+                    <div className="border-t border-gray-100 p-2 dark:border-gray-700">
+                      <p className="mb-1.5 text-xs font-medium text-gray-400 dark:text-gray-500">New label</p>
+                      <input
+                        type="text"
+                        value={newLabelName}
+                        onChange={(e) => setNewLabelName(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); createLabel(); } }}
+                        placeholder="Label name…"
+                        className="w-full rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                      />
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {PRESET_COLORS.map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => setNewLabelColor(c)}
+                            className="h-4 w-4 rounded-full transition-transform hover:scale-110"
+                            style={{ backgroundColor: c, outline: newLabelColor === c ? `2px solid ${c}` : "none", outlineOffset: "2px" }}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={createLabel}
+                        disabled={!newLabelName.trim() || creatingLabel}
+                        className="mt-1.5 flex w-full items-center justify-center gap-1 rounded-lg bg-indigo-600 px-2 py-1 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors"
+                      >
+                        <Plus className="h-3 w-3" />
+                        {creatingLabel ? "Creating…" : "Create"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}

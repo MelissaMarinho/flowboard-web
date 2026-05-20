@@ -5,9 +5,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Trash2 } from "lucide-react";
 import type { Task } from "@prisma/client";
-import TaskEditModal, { type MemberUser } from "./TaskEditModal";
-
-type TaskWithAssignee = Task & { assignee: { id: string; name: string | null; image: string | null } | null };
+import TaskEditModal, { type MemberUser, type WorkspaceLabel, type TaskWithAssignee } from "./TaskEditModal";
+import LabelBadge from "./LabelBadge";
 
 const priorityColor = {
   LOW: "bg-gray-100 text-gray-500",
@@ -26,10 +25,14 @@ function formatDueDate(date: Date | string | null): { label: string; overdue: bo
 export default function TaskCard({
   task,
   members = [],
+  workspaceLabels = [],
+  workspaceId,
   setTasks,
 }: {
   task: TaskWithAssignee;
   members?: MemberUser[];
+  workspaceLabels?: WorkspaceLabel[];
+  workspaceId?: string;
   setTasks: React.Dispatch<React.SetStateAction<TaskWithAssignee[]>>;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -87,6 +90,14 @@ export default function TaskCard({
           <p className="ml-6 line-clamp-2 text-xs text-gray-400 dark:text-gray-500">{task.description}</p>
         )}
 
+        {task.labels && task.labels.length > 0 && (
+          <div className="ml-6 flex flex-wrap gap-1">
+            {task.labels.map((tl) => (
+              <LabelBadge key={tl.label.id} name={tl.label.name} color={tl.label.color} />
+            ))}
+          </div>
+        )}
+
         <div className="ml-6 flex items-center justify-between">
           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[task.priority]}`}>
             {task.priority}
@@ -121,6 +132,8 @@ export default function TaskCard({
         <TaskEditModal
           task={task}
           members={members}
+          workspaceLabels={workspaceLabels}
+          workspaceId={workspaceId}
           onClose={() => setEditing(false)}
           onSave={(updated) => setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))}
         />

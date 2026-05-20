@@ -13,6 +13,16 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const current = await prisma.task.findUnique({ where: { id } });
   if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  // Reconcile labels if provided
+  if (Array.isArray(body.labelIds)) {
+    await prisma.taskLabel.deleteMany({ where: { taskId: id } });
+    if (body.labelIds.length > 0) {
+      await prisma.taskLabel.createMany({
+        data: body.labelIds.map((labelId: string) => ({ taskId: id, labelId })),
+      });
+    }
+  }
+
   const task = await prisma.task.update({
     where: { id },
     data: {
@@ -23,7 +33,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       ...(body.assigneeId !== undefined && { assigneeId: body.assigneeId }),
       ...(body.dueDate !== undefined && { dueDate: body.dueDate ? new Date(body.dueDate) : null }),
     },
-    include: { assignee: { select: { id: true, name: true, image: true } } },
+    include: {
+      assignee: { select: { id: true, name: true, image: true } },
+      labels: { include: { label: { select: { id: true, name: true, color: true } } } },
+    },
   });
 
   // Build change summary

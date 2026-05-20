@@ -7,7 +7,7 @@ import { Search, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import KanbanColumn from "./KanbanColumn";
 import type { Task } from "@prisma/client";
-import type { MemberUser } from "./TaskEditModal";
+import type { MemberUser, WorkspaceLabel, TaskWithAssignee } from "./TaskEditModal";
 
 const COLUMNS = [
   { id: "TODO", label: "To Do" },
@@ -16,20 +16,24 @@ const COLUMNS = [
 ] as const;
 
 type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
-type TaskWithAssignee = Task & { assignee: { id: string; name: string | null; image: string | null } | null };
 
 export default function KanbanBoard({
   projectId,
+  workspaceId,
   initialTasks,
   members = [],
+  workspaceLabels = [],
 }: {
   projectId: string;
+  workspaceId?: string;
   initialTasks: TaskWithAssignee[];
   members?: MemberUser[];
+  workspaceLabels?: WorkspaceLabel[];
 }) {
   const [tasks, setTasks] = useState<TaskWithAssignee[]>(initialTasks);
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "">("");
+  const [labelFilter, setLabelFilter] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -77,13 +81,15 @@ export default function KanbanBoard({
   function clearFilters() {
     setSearch("");
     setPriorityFilter("");
+    setLabelFilter("");
   }
 
-  const hasFilters = search.trim() !== "" || priorityFilter !== "";
+  const hasFilters = search.trim() !== "" || priorityFilter !== "" || labelFilter !== "";
 
   const filteredTasks = tasks.filter((t) => {
     if (search.trim() && !t.title.toLowerCase().includes(search.trim().toLowerCase())) return false;
     if (priorityFilter && t.priority !== priorityFilter) return false;
+    if (labelFilter && !t.labels?.some((tl) => tl.label.id === labelFilter)) return false;
     return true;
   });
 
@@ -114,6 +120,19 @@ export default function KanbanBoard({
           <option value="MEDIUM">Medium</option>
           <option value="LOW">Low</option>
         </select>
+
+        {workspaceLabels.length > 0 && (
+          <select
+            value={labelFilter}
+            onChange={(e) => setLabelFilter(e.target.value)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+          >
+            <option value="">All labels</option>
+            {workspaceLabels.map((l) => (
+              <option key={l.id} value={l.id}>{l.name}</option>
+            ))}
+          </select>
+        )}
 
         {hasFilters && (
           <button
@@ -148,6 +167,8 @@ export default function KanbanBoard({
                   tasks={colTasks}
                   projectId={projectId}
                   members={members}
+                  workspaceLabels={workspaceLabels}
+                  workspaceId={workspaceId}
                   setTasks={setTasks}
                 />
               </SortableContext>

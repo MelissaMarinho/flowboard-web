@@ -20,7 +20,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         },
       },
       tasks: {
-        include: { assignee: { select: { id: true, name: true, image: true } } },
+        include: {
+          assignee: { select: { id: true, name: true, image: true } },
+          labels: { include: { label: { select: { id: true, name: true, color: true } } } },
+        },
         orderBy: { createdAt: "asc" },
       },
       aiSummaries: { orderBy: { createdAt: "desc" }, take: 1 },
@@ -30,6 +33,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
   if (!project) notFound();
 
   const members = project.workspace.members.map((m) => m.user);
+  const workspaceLabels = await prisma.label.findMany({
+    where: { workspaceId: project.workspace.id },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <div className="space-y-6">
@@ -54,7 +61,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      <KanbanBoard projectId={project.id} initialTasks={project.tasks} members={members} />
+      <KanbanBoard
+        projectId={project.id}
+        workspaceId={project.workspace.id}
+        initialTasks={project.tasks}
+        members={members}
+        workspaceLabels={workspaceLabels}
+      />
 
       <ActivityFeed projectId={project.id} />
     </div>

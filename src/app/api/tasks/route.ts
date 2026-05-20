@@ -12,7 +12,10 @@ export async function GET(req: Request) {
 
   const tasks = await prisma.task.findMany({
     where: { projectId },
-    include: { assignee: { select: { id: true, name: true, image: true } } },
+    include: {
+      assignee: { select: { id: true, name: true, image: true } },
+      labels: { include: { label: { select: { id: true, name: true, color: true } } } },
+    },
     orderBy: { createdAt: "asc" },
   });
 
@@ -36,7 +39,10 @@ export async function POST(req: Request) {
       assigneeId: assigneeId ?? null,
       dueDate: dueDate ? new Date(dueDate) : null,
     },
-    include: { assignee: { select: { id: true, name: true, image: true } } },
+    include: {
+      assignee: { select: { id: true, name: true, image: true } },
+      labels: { include: { label: { select: { id: true, name: true, color: true } } } },
+    },
   });
 
   // Log activity (non-blocking)

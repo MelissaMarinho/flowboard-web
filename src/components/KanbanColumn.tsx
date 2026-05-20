@@ -5,9 +5,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import TaskCard from "./TaskCard";
 import type { Task } from "@prisma/client";
-import type { MemberUser } from "./TaskEditModal";
-
-type TaskWithAssignee = Task & { assignee: { id: string; name: string | null; image: string | null } | null };
+import type { MemberUser, WorkspaceLabel, TaskWithAssignee } from "./TaskEditModal";
 
 interface Column {
   id: string;
@@ -27,12 +25,16 @@ export default function KanbanColumn({
   tasks,
   projectId,
   members = [],
+  workspaceLabels = [],
+  workspaceId,
   setTasks,
 }: {
   column: Column;
   tasks: TaskWithAssignee[];
   projectId: string;
   members?: MemberUser[];
+  workspaceLabels?: WorkspaceLabel[];
+  workspaceId?: string;
   setTasks: React.Dispatch<React.SetStateAction<TaskWithAssignee[]>>;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
@@ -108,7 +110,7 @@ export default function KanbanColumn({
 
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} members={members} setTasks={setTasks} />
+          <TaskCard key={task.id} task={task} members={members} workspaceLabels={workspaceLabels} workspaceId={workspaceId} setTasks={setTasks} />
         ))}
 
         {tasks.length === 0 && !adding && (
