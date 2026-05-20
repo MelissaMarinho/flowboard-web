@@ -15,6 +15,7 @@ export async function GET(req: Request) {
     include: {
       assignee: { select: { id: true, name: true, image: true } },
       labels: { include: { label: { select: { id: true, name: true, color: true } } } },
+      subTasks: { select: { done: true } },
     },
     orderBy: { createdAt: "asc" },
   });

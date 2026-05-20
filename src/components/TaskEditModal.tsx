@@ -16,6 +16,7 @@ export type TaskLabel = { label: WorkspaceLabel };
 type TaskWithAssignee = Task & {
   assignee: { id: string; name: string | null; image: string | null } | null;
   labels?: TaskLabel[];
+  subTasks?: { done: boolean }[];
 };
 
 export type { TaskWithAssignee };

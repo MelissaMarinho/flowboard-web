@@ -36,6 +36,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     include: {
       assignee: { select: { id: true, name: true, image: true } },
       labels: { include: { label: { select: { id: true, name: true, color: true } } } },
+      subTasks: { select: { done: true } },
     },
   });
 

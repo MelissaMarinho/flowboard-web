@@ -103,6 +103,25 @@ export default function TaskCard({
           <p className="ml-6 line-clamp-2 text-xs text-gray-400 dark:text-gray-500">{task.description}</p>
         )}
 
+        {task.subTasks && task.subTasks.length > 0 && (() => {
+          const total = task.subTasks!.length;
+          const done = task.subTasks!.filter((s) => s.done).length;
+          const pct = Math.round((done / total) * 100);
+          return (
+            <div className="ml-6 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-400 dark:text-gray-500">{done}/{total} sub-tasks</span>
+              </div>
+              <div className="h-1 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+                <div
+                  className="h-1 rounded-full bg-indigo-400 transition-all"
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+
         {task.labels && task.labels.length > 0 && (
           <div className="ml-6 flex flex-wrap gap-1">
             {task.labels.map((tl) => (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Pencil, PlusCircle, Trash2, Sparkles } from "lucide-react";
 import TaskEditModal from "./TaskEditModal";
 import TaskComments from "./TaskComments";
+import SubTaskList from "./SubTaskList";
 import LabelBadge from "./LabelBadge";
 import type { TaskWithAssignee, MemberUser, WorkspaceLabel } from "./TaskEditModal";
 
@@ -157,6 +158,8 @@ export default function TaskDetailClient({
               <p className="text-sm italic text-gray-400 dark:text-gray-500">No description provided.</p>
             )}
           </div>
+
+          <SubTaskList taskId={task.id} />
 
           <TaskComments taskId={task.id} currentUserId={currentUserId} />
 
