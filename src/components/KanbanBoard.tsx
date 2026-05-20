@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DndContext, DragEndEvent, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Search, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -34,6 +34,7 @@ export default function KanbanBoard({
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "">("");
   const [labelFilter, setLabelFilter] = useState("");
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -64,7 +65,12 @@ export default function KanbanBoard({
     return () => { supabase.removeChannel(channel); };
   }, [projectId]);
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string);
+  }
+
   async function handleDragEnd(event: DragEndEvent) {
+    setActiveId(null);
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -106,14 +112,14 @@ export default function KanbanBoard({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tasks…"
-            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-8 pr-3 text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-8 pr-3 text-sm text-indigo-600 placeholder-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-gray-700 dark:bg-gray-800 dark:text-indigo-400 dark:placeholder-gray-500"
           />
         </div>
 
         <select
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value as TaskPriority | "")}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-indigo-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-gray-700 dark:bg-gray-800 dark:text-indigo-400"
         >
           <option value="">All priorities</option>
           <option value="HIGH">High</option>
@@ -125,7 +131,7 @@ export default function KanbanBoard({
           <select
             value={labelFilter}
             onChange={(e) => setLabelFilter(e.target.value)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-indigo-600 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-gray-700 dark:bg-gray-800 dark:text-indigo-400"
           >
             <option value="">All labels</option>
             {workspaceLabels.map((l) => (
@@ -151,7 +157,7 @@ export default function KanbanBoard({
       </div>
 
       {/* Kanban columns */}
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {COLUMNS.map((col) => {
             const colTasks = filteredTasks.filter((t) => t.status === col.id);
@@ -175,6 +181,34 @@ export default function KanbanBoard({
             );
           })}
         </div>
+
+        <DragOverlay dropAnimation={{ duration: 150, easing: "ease" }}>
+          {activeId ? (() => {
+            const t = tasks.find((t) => t.id === activeId);
+            if (!t) return null;
+            return (
+              <div className="rotate-1 cursor-grabbing rounded-xl border border-indigo-300 bg-white p-3 shadow-2xl dark:border-indigo-600 dark:bg-gray-800">
+                <p className="text-sm font-medium leading-snug text-gray-800 dark:text-gray-100">{t.title}</p>
+                {t.description && (
+                  <p className="mt-1 line-clamp-2 text-xs text-gray-400 dark:text-gray-500">{t.description}</p>
+                )}
+                {t.labels && t.labels.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {t.labels.map((tl) => (
+                      <span
+                        key={tl.label.id}
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{ backgroundColor: `${tl.label.color}22`, color: tl.label.color }}
+                      >
+                        {tl.label.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })() : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );

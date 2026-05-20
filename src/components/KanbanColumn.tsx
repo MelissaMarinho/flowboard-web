@@ -133,14 +133,14 @@ export default function KanbanColumn({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Task title…"
-            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-indigo-600 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400 dark:placeholder-gray-500"
           />
 
           <div className="grid grid-cols-2 gap-2">
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as Task["priority"])}
-              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-indigo-600 focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -153,7 +153,7 @@ export default function KanbanColumn({
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-indigo-600 focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             />
           </div>
 
@@ -161,7 +161,7 @@ export default function KanbanColumn({
             <select
               value={assigneeId}
               onChange={(e) => setAssigneeId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-indigo-600 focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             >
               <option value="">Unassigned</option>
               {members.map((m) => (

@@ -172,7 +172,7 @@ export default function TaskEditModal({
               autoFocus
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             />
           </div>
 
@@ -184,7 +184,7 @@ export default function TaskEditModal({
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Add a description…"
-              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400 dark:placeholder-gray-500"
             />
           </div>
 
@@ -195,7 +195,7 @@ export default function TaskEditModal({
                 id="edit-priority"
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as Task["priority"])}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
               >
                 {PRIORITIES.map((p) => (
                   <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>
@@ -209,7 +209,7 @@ export default function TaskEditModal({
                 id="edit-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as Task["status"])}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
               >
                 {STATUSES.map((s) => (
                   <option key={s.value} value={s.value}>{s.label}</option>
@@ -225,7 +225,7 @@ export default function TaskEditModal({
                 id="edit-assignee"
                 value={assigneeId}
                 onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
               >
                 <option value="">Unassigned</option>
                 {members.map((m) => (
@@ -242,7 +242,7 @@ export default function TaskEditModal({
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             />
           </div>
 
@@ -304,7 +304,7 @@ export default function TaskEditModal({
                         onChange={(e) => setNewLabelName(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); createLabel(); } }}
                         placeholder="Label name…"
-                        className="w-full rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-indigo-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                        className="w-full rounded-lg border border-gray-200 px-2 py-1 text-xs text-indigo-600 placeholder-gray-400 focus:border-indigo-400 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-indigo-400 dark:placeholder-gray-500"
                       />
                       <div className="mt-1.5 flex flex-wrap gap-1">
                         {PRESET_COLORS.map((c) => (
