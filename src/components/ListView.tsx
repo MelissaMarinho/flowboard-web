@@ -25,6 +25,37 @@ function SortIndicator({ active, dir }: { active: boolean; dir: SortDir }) {
   );
 }
 
+function SortHeader({
+  field,
+  sortField,
+  sortDir,
+  onSort,
+  children,
+}: {
+  field: SortField;
+  sortField: SortField;
+  sortDir: SortDir;
+  onSort: (f: SortField) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={() => onSort(field)}
+      className="flex items-center text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+    >
+      {children}
+      <SortIndicator active={sortField === field} dir={sortDir} />
+    </button>
+  );
+}
+
+function getColumnColor(columns: Column[], status: string) {
+  return columns.find((c) => c.id === status)?.color ?? "#94a3b8";
+}
+function getColumnName(columns: Column[], status: string) {
+  return columns.find((c) => c.id === status)?.name ?? status;
+}
+
 export default function ListView({
   initialTasks,
   columns,
@@ -56,13 +87,6 @@ export default function ListView({
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
-
-  function getColumnColor(status: string) {
-    return columns.find((c) => c.id === status)?.color ?? "#94a3b8";
-  }
-  function getColumnName(status: string) {
-    return columns.find((c) => c.id === status)?.name ?? status;
-  }
 
   function toggleSort(field: SortField) {
     setSort((s) =>
@@ -98,7 +122,7 @@ export default function ListView({
             (PRIORITY_ORDER[aAny.priority] ?? 1) - (PRIORITY_ORDER[bAny.priority] ?? 1);
           break;
         case "status":
-          cmp = getColumnName(a.status).localeCompare(getColumnName(b.status));
+          cmp = getColumnName(columns, a.status).localeCompare(getColumnName(columns, b.status));
           break;
         case "dueDate": {
           const aD = a.dueDate ? new Date(a.dueDate as unknown as string).getTime() : Infinity;
@@ -125,24 +149,6 @@ export default function ListView({
     setColFilter("");
     setPriorityFilter("");
     setAssigneeFilter("");
-  }
-
-  function SortHeader({
-    field,
-    children,
-  }: {
-    field: SortField;
-    children: React.ReactNode;
-  }) {
-    return (
-      <button
-        onClick={() => toggleSort(field)}
-        className="flex items-center text-xs font-semibold uppercase tracking-wide text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-      >
-        {children}
-        <SortIndicator active={sort.field === field} dir={sort.dir} />
-      </button>
-    );
   }
 
   return (
@@ -221,13 +227,13 @@ export default function ListView({
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-800">
                 <th className="px-4 py-3 text-left">
-                  <SortHeader field="title">Title</SortHeader>
+                  <SortHeader field="title" sortField={sort.field} sortDir={sort.dir} onSort={toggleSort}>Title</SortHeader>
                 </th>
                 <th className="px-4 py-3 text-left">
-                  <SortHeader field="status">Status</SortHeader>
+                  <SortHeader field="status" sortField={sort.field} sortDir={sort.dir} onSort={toggleSort}>Status</SortHeader>
                 </th>
                 <th className="px-4 py-3 text-left">
-                  <SortHeader field="priority">Priority</SortHeader>
+                  <SortHeader field="priority" sortField={sort.field} sortDir={sort.dir} onSort={toggleSort}>Priority</SortHeader>
                 </th>
                 <th className="hidden px-4 py-3 text-left sm:table-cell">
                   <span className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
@@ -235,7 +241,7 @@ export default function ListView({
                   </span>
                 </th>
                 <th className="hidden px-4 py-3 text-left md:table-cell">
-                  <SortHeader field="dueDate">Due</SortHeader>
+                  <SortHeader field="dueDate" sortField={sort.field} sortDir={sort.dir} onSort={toggleSort}>Due</SortHeader>
                 </th>
               </tr>
             </thead>
@@ -252,7 +258,7 @@ export default function ListView({
               ) : (
                 filtered.map((task, i) => {
                   const tAny = task as unknown as { priority: string; number: number };
-                  const color = getColumnColor(task.status);
+                  const color = getColumnColor(columns, task.status);
                   const isLast = i === filtered.length - 1;
                   const rawDue = task.dueDate as unknown as string | null;
                   const isOverdue = rawDue && new Date(rawDue) < today;
@@ -301,7 +307,7 @@ export default function ListView({
                           className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
                           style={{ backgroundColor: color }}
                         >
-                          {getColumnName(task.status)}
+                          {getColumnName(columns, task.status)}
                         </span>
                       </td>
 

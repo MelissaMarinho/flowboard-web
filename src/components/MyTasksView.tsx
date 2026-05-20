@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import TaskEditModal from "./TaskEditModal";
-import type { TaskWithAssignee, Column, MemberUser, WorkspaceLabel } from "./TaskEditModal";
+import type { TaskWithAssignee, Column, WorkspaceLabel } from "./TaskEditModal";
 
 type TaskWithProject = TaskWithAssignee & {
   project: { id: string; name: string; key: string | null };
