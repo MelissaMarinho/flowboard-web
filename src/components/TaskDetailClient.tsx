@@ -132,7 +132,7 @@ export default function TaskDetailClient({
           <span className="text-gray-500 dark:text-gray-400">
             {formatDate((task as unknown as { createdAt: unknown }).createdAt)}
           </span>
-          {(task as unknown as { updatedAt: unknown }).updatedAt && (
+          {(task as unknown as { updatedAt: string | null }).updatedAt && (
             <>
               {" "}· Updated{" "}
               <span className="text-gray-500 dark:text-gray-400">
