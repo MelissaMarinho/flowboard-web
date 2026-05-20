@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ChevronUp, ChevronDown, Search, X } from "lucide-react";
-import TaskEditModal from "./TaskEditModal";
 import type { TaskWithAssignee, Column, MemberUser, WorkspaceLabel } from "./TaskEditModal";
 
 type SortField = "title" | "priority" | "status" | "dueDate" | "createdAt";
@@ -71,8 +72,8 @@ export default function ListView({
   workspaceId?: string;
   projectKey?: string;
 }) {
-  const [tasks, setTasks] = useState<TaskWithAssignee[]>(initialTasks);
-  const [editingTask, setEditingTask] = useState<TaskWithAssignee | null>(null);
+  const router = useRouter();
+  const [tasks] = useState<TaskWithAssignee[]>(initialTasks);
   const [search, setSearch] = useState("");
   const [colFilter, setColFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "">("");
@@ -266,7 +267,11 @@ export default function ListView({
                   return (
                     <tr
                       key={task.id}
-                      onClick={() => setEditingTask(task)}
+                      onClick={() =>
+                        router.push(
+                          `/dashboard/projects/${(task as unknown as { projectId: string }).projectId}/tasks/${task.id}`
+                        )
+                      }
                       className={`cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
                         !isLast ? "border-b border-gray-50 dark:border-gray-800/60" : ""
                       }`}
@@ -275,9 +280,13 @@ export default function ListView({
                       <td className="px-4 py-3">
                         <div className="flex min-w-0 items-center gap-2">
                           {projectKey && tAny.number > 0 && (
-                            <span className="flex-shrink-0 font-mono text-xs text-gray-400 dark:text-gray-500">
+                            <Link
+                              href={`/dashboard/projects/${(task as unknown as { projectId: string }).projectId}/tasks/${task.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex-shrink-0 font-mono text-xs font-medium text-indigo-500 hover:underline dark:text-indigo-400"
+                            >
                               {projectKey}-{tAny.number}
-                            </span>
+                            </Link>
                           )}
                           <span className="line-clamp-1 text-sm font-medium text-gray-800 dark:text-gray-200">
                             {task.title}
@@ -375,20 +384,6 @@ export default function ListView({
         </div>
       </div>
 
-      {editingTask && (
-        <TaskEditModal
-          task={editingTask}
-          members={members}
-          workspaceLabels={workspaceLabels}
-          workspaceId={workspaceId}
-          columns={columns}
-          onClose={() => setEditingTask(null)}
-          onSave={(updated) => {
-            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
-            setEditingTask(null);
-          }}
-        />
-      )}
     </div>
   );
 }

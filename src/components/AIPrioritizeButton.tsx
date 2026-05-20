@@ -15,7 +15,13 @@ const priorityColor = {
   HIGH: "bg-red-100 text-red-600",
 };
 
-export default function AIPrioritizeButton({ projectId }: { projectId: string }) {
+export default function AIPrioritizeButton({
+  projectId,
+  compact = false,
+}: {
+  projectId: string;
+  compact?: boolean;
+}) {
   const [loading, setLoading] = useState(false);
   const [applying, setApplying] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
@@ -71,7 +77,7 @@ export default function AIPrioritizeButton({ projectId }: { projectId: string })
       <button
         onClick={generate}
         disabled={loading}
-        className="flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-700 dark:bg-violet-950 dark:text-violet-300 dark:hover:bg-violet-900 transition-colors"
+        className={`flex items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 font-medium text-violet-700 hover:bg-violet-100 disabled:opacity-50 dark:border-violet-700 dark:bg-violet-950 dark:text-violet-300 dark:hover:bg-violet-900 transition-colors ${compact ? "px-2.5 py-1.5 text-xs" : "px-4 py-2 text-sm gap-2"}`}
       >
         <Wand2 className="h-4 w-4" />
         {loading ? "Analysing…" : "AI Prioritize"}

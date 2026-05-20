@@ -169,9 +169,13 @@ export default function MyTasksView({
                   {/* Title */}
                   <span className="min-w-0 flex-1">
                     {project.key && tAny.number > 0 && (
-                      <span className="mr-1.5 font-mono text-xs text-gray-400 dark:text-gray-500">
+                      <Link
+                        href={`/dashboard/projects/${task.projectId}/tasks/${task.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mr-1.5 font-mono text-xs font-medium text-indigo-500 hover:underline dark:text-indigo-400"
+                      >
                         {project.key}-{tAny.number}
-                      </span>
+                      </Link>
                     )}
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                       {task.title}

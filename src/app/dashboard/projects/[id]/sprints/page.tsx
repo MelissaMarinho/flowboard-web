@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import SprintsView from "@/components/SprintsView";
+import ProjectNav from "@/components/ProjectNav";
 import type { TaskWithAssignee, Column, Sprint } from "@/components/TaskEditModal";
 
 type SprintWithCount = Sprint & { _count: { tasks: number } };
@@ -66,11 +67,12 @@ export default async function SprintsPage({
   })) as unknown as TaskWithAssignee[];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{project.name}</h1>
-        <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Sprint planning</p>
-      </div>
+    <div className="space-y-0">
+      <ProjectNav
+        projectId={projectId}
+        projectName={project.name}
+        projectKey={project.key}
+      />
       <SprintsView
         projectId={projectId}
         projectKey={project.key ?? undefined}

@@ -1,10 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import KanbanBoard from "@/components/KanbanBoard";
-import AISummaryButton from "@/components/AISummaryButton";
-import AIPrioritizeButton from "@/components/AIPrioritizeButton";
-import ExportCsvButton from "@/components/ExportCsvButton";
+import ProjectNav from "@/components/ProjectNav";
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -40,70 +37,17 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
     orderBy: { name: "asc" },
   });
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{project.name}</h1>
-          {project.description && (
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description}</p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/dashboard/projects/${project.id}/list`}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-          >
-            List
-          </Link>
-          <Link
-            href={`/dashboard/projects/${project.id}/sprints`}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-          >
-            Sprints
-          </Link>
-          <Link
-            href={`/dashboard/projects/${project.id}/calendar`}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-          >
-            Calendar
-          </Link>
-          <Link
-            href={`/dashboard/projects/${project.id}/gantt`}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-          >
-            Gantt
-          </Link>
-          <Link
-            href={`/dashboard/projects/${project.id}/analytics`}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-          >
-            Analytics
-          </Link>
-          <Link
-            href={`/dashboard/projects/${project.id}/activity`}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-          >
-            Activity
-          </Link>
-          <Link
-            href={`/dashboard/projects/${project.id}/chat`}
-            className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900 transition-colors"
-          >
-            AI Chat
-          </Link>
-          <ExportCsvButton projectId={project.id} projectName={project.name} />
-          <AIPrioritizeButton projectId={project.id} />
-          <AISummaryButton projectId={project.id} />
-        </div>
-      </div>
+  const latestSummary = project.aiSummaries[0] ?? null;
 
-      {project.aiSummaries[0] && (
-        <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950">
-          <p className="text-xs font-medium uppercase tracking-wide text-indigo-600 dark:text-indigo-400">AI Summary</p>
-          <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{project.aiSummaries[0].content}</p>
-        </div>
-      )}
+  return (
+    <div className="space-y-0">
+      <ProjectNav
+        projectId={project.id}
+        projectName={project.name}
+        projectKey={project.key}
+        initialSummary={latestSummary?.content ?? null}
+        initialSummaryAt={latestSummary?.createdAt?.toISOString() ?? null}
+      />
 
       <KanbanBoard
         projectId={project.id}
@@ -114,7 +58,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         members={members}
         workspaceLabels={workspaceLabels}
       />
-
     </div>
   );
 }

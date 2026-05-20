@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-function deriveKey(name: string): string {
-  const words = name.trim().split(/[\s\-_]+/).filter(Boolean);
-  const raw =
-    words.length >= 2
-      ? words.map((w) => w[0]).join("")
-      : words[0] ?? "";
-  return raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5) || "PROJ";
-}
+import { deriveKey, toProjectName } from "@/lib/project-utils";
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -37,16 +29,19 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, description, workspaceId, key: rawKey } = await req.json();
-  if (!name || !workspaceId) return NextResponse.json({ error: "name and workspaceId required" }, { status: 400 });
+  const { name: rawName, description, workspaceId } = await req.json();
+  if (!rawName || !workspaceId) return NextResponse.json({ error: "name and workspaceId required" }, { status: 400 });
+
+  // Always store with title-case name
+  const name = toProjectName(rawName);
 
   const member = await prisma.workspaceMember.findUnique({
     where: { workspaceId_userId: { workspaceId, userId: session.user!.id } },
   });
   if (!member) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  // Derive key: use user-provided value, fall back to auto-generated
-  let key = (rawKey ?? deriveKey(name)).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5) || deriveKey(name);
+  // Always auto-derive key: 3 chars (1st, mid, last letter of name)
+  let key = deriveKey(name);
 
   // If key already taken in this workspace, append a numeric suffix
   const existing = await prisma.project.findFirst({ where: { workspaceId, key } });

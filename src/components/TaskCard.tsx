@@ -135,9 +135,13 @@ export default function TaskCard({
         <div className="ml-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
             {projectKey && (task as unknown as { number: number }).number > 0 && (
-              <span className="font-mono text-xs text-gray-400 dark:text-gray-500">
+              <Link
+                href={`/dashboard/projects/${task.projectId}/tasks/${task.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-mono text-xs text-indigo-400 hover:text-indigo-600 hover:underline dark:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
+              >
                 {projectKey}-{(task as unknown as { number: number }).number}
-              </span>
+              </Link>
             )}
             <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[task.priority]}`}>
               {task.priority}

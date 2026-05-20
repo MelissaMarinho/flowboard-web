@@ -119,11 +119,28 @@ export default function TaskDetailClient({
       {/* Title + labels */}
       <div>
         {projectKey && taskNumber && taskNumber > 0 && (
-          <p className="mb-1 font-mono text-sm font-medium text-indigo-500 dark:text-indigo-400">
+          <p className="mb-2 font-mono text-xs font-semibold uppercase tracking-widest text-indigo-500 dark:text-indigo-400">
             {projectKey}-{taskNumber}
           </p>
         )}
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{task.title}</h1>
+        <h1 className="text-2xl font-bold leading-snug text-gray-900 dark:text-gray-100">
+          {task.title}
+        </h1>
+        {/* Timestamps */}
+        <p className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+          Created{" "}
+          <span className="text-gray-500 dark:text-gray-400">
+            {formatDate((task as unknown as { createdAt: unknown }).createdAt)}
+          </span>
+          {(task as unknown as { updatedAt: unknown }).updatedAt && (
+            <>
+              {" "}· Updated{" "}
+              <span className="text-gray-500 dark:text-gray-400">
+                {timeAgo((task as unknown as { updatedAt: string }).updatedAt)}
+              </span>
+            </>
+          )}
+        </p>
         {task.labels && task.labels.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
             {task.labels.map((tl) => (
@@ -275,6 +292,15 @@ export default function TaskDetailClient({
             </p>
             <span className="text-sm text-gray-700 dark:text-gray-300">
               {formatDate((task as unknown as { createdAt: unknown }).createdAt)}
+            </span>
+          </div>
+
+          <div>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+              Updated
+            </p>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {timeAgo((task as unknown as { updatedAt: string }).updatedAt)}
             </span>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import AnalyticsView from "@/components/AnalyticsView";
+import ProjectNav from "@/components/ProjectNav";
 import type { TaskWithAssignee } from "@/components/TaskEditModal";
 
 export default async function AnalyticsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -41,14 +42,12 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ id: 
   })) as unknown as TaskWithAssignee[];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{project.name}</h1>
-        {project.description && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{project.description}</p>
-        )}
-      </div>
-
+    <div className="space-y-0">
+      <ProjectNav
+        projectId={project.id}
+        projectName={project.name}
+        projectKey={project.key}
+      />
       <AnalyticsView tasks={tasks} columns={project.columns} />
     </div>
   );
