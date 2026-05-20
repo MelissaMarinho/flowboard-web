@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2 } from "lucide-react";
+import { GripVertical, Trash2, ExternalLink } from "lucide-react";
 import type { Task } from "@prisma/client";
 import TaskEditModal, { type MemberUser, type WorkspaceLabel, type TaskWithAssignee } from "./TaskEditModal";
 import LabelBadge from "./LabelBadge";
@@ -41,8 +42,8 @@ export default function TaskCard({
   const [editing, setEditing] = useState(false);
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: isDragging ? undefined : CSS.Transform.toString(transform),
+    transition: isDragging ? undefined : transition,
     opacity: isDragging ? 0 : 1,
   };
 
@@ -78,12 +79,22 @@ export default function TaskCard({
 
           <p className="flex-1 text-sm font-medium leading-snug text-gray-800 dark:text-gray-100">{task.title}</p>
 
-          <button
-            onClick={deleteTask}
-            className="hidden flex-shrink-0 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500 group-hover:block transition-colors"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+          <div className="hidden group-hover:flex items-center gap-0.5 flex-shrink-0">
+            <Link
+              href={`/dashboard/projects/${task.projectId}/tasks/${task.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="rounded p-0.5 text-gray-400 hover:bg-indigo-50 hover:text-indigo-500 dark:hover:bg-indigo-950 dark:hover:text-indigo-400 transition-colors"
+              title="Open full page"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
+            <button
+              onClick={deleteTask}
+              className="rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
 
         {task.description && (

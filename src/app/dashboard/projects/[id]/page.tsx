@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import KanbanBoard from "@/components/KanbanBoard";
 import AISummaryButton from "@/components/AISummaryButton";
 import AIPrioritizeButton from "@/components/AIPrioritizeButton";
-import ActivityFeed from "@/components/ActivityFeed";
 import ExportCsvButton from "@/components/ExportCsvButton";
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
@@ -69,7 +68,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         workspaceLabels={workspaceLabels}
       />
 
-      <ActivityFeed projectId={project.id} />
     </div>
   );
 }
