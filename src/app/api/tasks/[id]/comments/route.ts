@@ -27,7 +27,7 @@ export async function GET(
   const task = await getTaskWorkspace(taskId);
   if (!task) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const membership = await checkMembership(task.project.workspaceId, session.user.id);
+  const membership = await checkMembership(task.project.workspaceId, session.user!.id);
   if (!membership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const comments = await prisma.comment.findMany({
@@ -53,11 +53,11 @@ export async function POST(
   const task = await getTaskWorkspace(taskId);
   if (!task) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const membership = await checkMembership(task.project.workspaceId, session.user.id);
+  const membership = await checkMembership(task.project.workspaceId, session.user!.id);
   if (!membership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const comment = await prisma.comment.create({
-    data: { content: content.trim(), taskId, userId: session.user.id },
+    data: { content: content.trim(), taskId, userId: session.user!.id },
     include: { user: { select: { id: true, name: true, image: true } } },
   });
 

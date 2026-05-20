@@ -13,7 +13,7 @@ export async function DELETE(
 
   const comment = await prisma.comment.findUnique({ where: { id: commentId } });
   if (!comment) return new NextResponse(null, { status: 204 });
-  if (comment.userId !== session.user.id)
+  if (comment.userId !== session.user!.id)
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   await prisma.comment.delete({ where: { id: commentId } });
