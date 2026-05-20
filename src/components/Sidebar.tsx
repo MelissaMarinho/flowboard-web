@@ -7,11 +7,13 @@ import { signOut } from "next-auth/react";
 import {
   LayoutDashboard,
   FolderKanban,
+  CheckSquare,
   Settings,
   LogOut,
   ChevronDown,
   Building2,
   Plus,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { User } from "next-auth";
@@ -27,6 +29,7 @@ interface Workspace {
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/projects", label: "Projects", icon: FolderKanban },
+  { href: "/dashboard/my-tasks", label: "My Tasks", icon: CheckSquare },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -119,6 +122,15 @@ export default function Sidebar({
             )}
           </Link>
         ))}
+
+        {/* Search hint */}
+        <div className="mt-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-gray-400 dark:text-gray-600">
+          <Search className="h-3.5 w-3.5 flex-shrink-0" />
+          <span className="flex-1 truncate">Search tasks…</span>
+          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-gray-400 dark:bg-gray-800 dark:text-gray-500">
+            ⌘K
+          </kbd>
+        </div>
       </nav>
 
       {/* User footer */}
