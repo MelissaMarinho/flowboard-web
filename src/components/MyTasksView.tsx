@@ -234,7 +234,11 @@ export default function MyTasksView({
           workspaceLabels={workspaceLabels}
           onClose={() => setEditingTask(null)}
           onSave={(updated) => {
-            setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+            setTasks((prev) =>
+              prev.map((t) =>
+                t.id === updated.id ? { ...updated, project: t.project } : t,
+              ),
+            );
             setEditingTask(null);
           }}
         />
