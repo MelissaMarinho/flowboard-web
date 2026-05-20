@@ -27,6 +27,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         orderBy: { createdAt: "asc" },
       },
       aiSummaries: { orderBy: { createdAt: "desc" }, take: 1 },
+      columns: { orderBy: { order: "asc" } },
     },
   });
 
@@ -66,6 +67,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         workspaceId={project.workspace.id}
         projectKey={project.key ?? undefined}
         initialTasks={project.tasks}
+        initialColumns={project.columns}
         members={members}
         workspaceLabels={workspaceLabels}
       />

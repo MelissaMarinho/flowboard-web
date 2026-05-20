@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import TaskDetailClient from "@/components/TaskDetailClient";
-import type { TaskWithAssignee } from "@/components/TaskEditModal";
+import type { TaskWithAssignee, Column } from "@/components/TaskEditModal";
 
 export default async function TaskDetailPage({
   params,
@@ -20,6 +20,7 @@ export default async function TaskDetailPage({
       labels: { include: { label: { select: { id: true, name: true, color: true } } } },
       project: {
         include: {
+          columns: { orderBy: { order: "asc" } },
           workspace: {
             include: {
               members: { include: { user: { select: { id: true, name: true, image: true } } } },
@@ -46,6 +47,7 @@ export default async function TaskDetailPage({
   const members = task.project.workspace.members.map((m) => m.user);
   const workspaceLabels = task.project.workspace.labels;
   const workspaceId = task.project.workspaceId;
+  const columns = task.project.columns as Column[];
 
   // Serialize dates for client component
   const taskForClient = {
@@ -72,6 +74,7 @@ export default async function TaskDetailPage({
       currentUserId={currentUserId}
       projectKey={task.project.key ?? undefined}
       taskNumber={task.number}
+      columns={columns}
     />
   );
 }

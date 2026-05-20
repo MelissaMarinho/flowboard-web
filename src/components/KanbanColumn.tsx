@@ -1,24 +1,16 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import TaskCard from "./TaskCard";
 import type { Task } from "@prisma/client";
-import type { MemberUser, WorkspaceLabel, TaskWithAssignee } from "./TaskEditModal";
+import type { MemberUser, WorkspaceLabel, TaskWithAssignee, Column } from "./TaskEditModal";
 
-interface Column {
-  id: string;
-  label: string;
-}
-
-const colorMap: Record<string, string> = {
-  TODO: "bg-gray-100 text-gray-600",
-  IN_PROGRESS: "bg-amber-100 text-amber-700",
-  DONE: "bg-green-100 text-green-700",
-};
-
-const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
+const COLUMN_COLORS = [
+  "#94a3b8", "#f59e0b", "#22c55e", "#6366f1",
+  "#8b5cf6", "#ec4899", "#ef4444", "#14b8a6", "#0ea5e9",
+];
 
 export default function KanbanColumn({
   column,
@@ -28,7 +20,12 @@ export default function KanbanColumn({
   members = [],
   workspaceLabels = [],
   workspaceId,
+  columns = [],
   setTasks,
+  onRename,
+  onDelete,
+  onColorChange,
+  deleteError = "",
 }: {
   column: Column;
   tasks: TaskWithAssignee[];
@@ -37,7 +34,12 @@ export default function KanbanColumn({
   members?: MemberUser[];
   workspaceLabels?: WorkspaceLabel[];
   workspaceId?: string;
+  columns?: Column[];
   setTasks: React.Dispatch<React.SetStateAction<TaskWithAssignee[]>>;
+  onRename: (name: string) => void;
+  onDelete: () => void;
+  onColorChange: (color: string) => void;
+  deleteError?: string;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const [adding, setAdding] = useState(false);
@@ -46,13 +48,44 @@ export default function KanbanColumn({
   const [assigneeId, setAssigneeId] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [addError, setAddError] = useState("");
+
+  // Rename state
+  const [renaming, setRenaming] = useState(false);
+  const [draftName, setDraftName] = useState("");
+
+  // Color picker state
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+
+  // Close color picker on outside click
+  useEffect(() => {
+    if (!colorPickerOpen) return;
+    function onOutside(e: MouseEvent) {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setColorPickerOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onOutside);
+    return () => document.removeEventListener("mousedown", onOutside);
+  }, [colorPickerOpen]);
+
+  function startRename() {
+    setDraftName(column.name);
+    setRenaming(true);
+  }
+
+  function commitRename() {
+    const trimmed = draftName.trim();
+    if (trimmed && trimmed !== column.name) onRename(trimmed);
+    setRenaming(false);
+  }
 
   async function addTask(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
     setSubmitting(true);
-    setError("");
+    setAddError("");
     try {
       const res = await fetch("/api/tasks", {
         method: "POST",
@@ -71,7 +104,7 @@ export default function KanbanColumn({
       setTasks((prev) => [...prev, task]);
       cancel();
     } catch {
-      setError("Failed to add task. Try again.");
+      setAddError("Failed to add task. Try again.");
     } finally {
       setSubmitting(false);
     }
@@ -83,8 +116,10 @@ export default function KanbanColumn({
     setPriority("MEDIUM");
     setAssigneeId("");
     setDueDate("");
-    setError("");
+    setAddError("");
   }
+
+  const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
 
   return (
     <div
@@ -95,24 +130,101 @@ export default function KanbanColumn({
           : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
       }`}
     >
+      {/* Column header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${colorMap[column.id]}`}>
-            {column.label}
-          </span>
+          {/* Color picker */}
+          <div className="relative" ref={colorPickerRef}>
+            <button
+              onClick={() => setColorPickerOpen((o) => !o)}
+              className="h-3 w-3 rounded-full flex-shrink-0 hover:opacity-80 transition-opacity"
+              style={{ backgroundColor: column.color }}
+              title="Change color"
+            />
+            {colorPickerOpen && (
+              <div className="absolute left-0 top-full z-20 mt-1 flex flex-wrap gap-1 rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                {COLUMN_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onColorChange(c);
+                      setColorPickerOpen(false);
+                    }}
+                    className={`h-4 w-4 rounded-full transition-transform hover:scale-110 ${
+                      column.color === c ? "ring-2 ring-offset-1 ring-gray-400 dark:ring-gray-500" : ""
+                    }`}
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Column name / rename input */}
+          {renaming ? (
+            <input
+              autoFocus
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitRename();
+                if (e.key === "Escape") { setDraftName(column.name); setRenaming(false); }
+              }}
+              className="w-32 rounded border border-indigo-300 bg-white px-1.5 py-0.5 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-indigo-400 dark:border-indigo-700 dark:bg-gray-800 dark:text-gray-100"
+            />
+          ) : (
+            <button
+              onClick={startRename}
+              className="rounded px-1.5 py-0.5 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              style={{ color: column.color }}
+              title="Click to rename"
+            >
+              {column.name}
+            </button>
+          )}
+
           <span className="text-xs text-gray-400 dark:text-gray-500">{tasks.length}</span>
         </div>
-        <button
-          onClick={() => setAdding(true)}
-          className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        >
-          <Plus className="h-4 w-4 text-gray-500" />
-        </button>
+
+        <div className="flex items-center gap-0.5">
+          <button
+            onClick={onDelete}
+            className="rounded p-1 text-gray-300 hover:bg-red-50 hover:text-red-400 dark:text-gray-600 dark:hover:bg-red-950 dark:hover:text-red-400 transition-colors"
+            title="Delete column"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => setAdding(true)}
+            className="rounded p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <Plus className="h-4 w-4 text-gray-500" />
+          </button>
+        </div>
       </div>
 
+      {/* Delete error */}
+      {deleteError && (
+        <p className="mb-2 rounded-lg bg-red-50 px-2.5 py-1.5 text-xs text-red-500 dark:bg-red-950 dark:text-red-400">
+          {deleteError}
+        </p>
+      )}
+
+      {/* Task list */}
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} projectKey={projectKey} members={members} workspaceLabels={workspaceLabels} workspaceId={workspaceId} setTasks={setTasks} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            projectKey={projectKey}
+            members={members}
+            workspaceLabels={workspaceLabels}
+            workspaceId={workspaceId}
+            columns={columns}
+            setTasks={setTasks}
+          />
         ))}
 
         {tasks.length === 0 && !adding && (
@@ -128,6 +240,7 @@ export default function KanbanColumn({
         )}
       </div>
 
+      {/* Add task form */}
       {adding && (
         <form onSubmit={addTask} className="mt-3 space-y-2">
           <input
@@ -137,7 +250,6 @@ export default function KanbanColumn({
             placeholder="Task title…"
             className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-indigo-600 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400 dark:placeholder-gray-500"
           />
-
           <div className="grid grid-cols-2 gap-2">
             <select
               value={priority}
@@ -145,12 +257,9 @@ export default function KanbanColumn({
               className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-indigo-600 focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             >
               {PRIORITIES.map((p) => (
-                <option key={p} value={p}>
-                  {p.charAt(0) + p.slice(1).toLowerCase()}
-                </option>
+                <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>
               ))}
             </select>
-
             <input
               type="date"
               value={dueDate}
@@ -158,7 +267,6 @@ export default function KanbanColumn({
               className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-indigo-600 focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             />
           </div>
-
           {members.length > 0 && (
             <select
               value={assigneeId}
@@ -167,15 +275,11 @@ export default function KanbanColumn({
             >
               <option value="">Unassigned</option>
               {members.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name ?? m.id}
-                </option>
+                <option key={m.id} value={m.id}>{m.name ?? m.id}</option>
               ))}
             </select>
           )}
-
-          {error && <p className="text-xs text-red-500">{error}</p>}
-
+          {addError && <p className="text-xs text-red-500">{addError}</p>}
           <div className="flex gap-2">
             <button
               type="submit"

@@ -6,7 +6,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Trash2, ExternalLink } from "lucide-react";
 import type { Task } from "@prisma/client";
-import TaskEditModal, { type MemberUser, type WorkspaceLabel, type TaskWithAssignee } from "./TaskEditModal";
+import TaskEditModal, { type MemberUser, type WorkspaceLabel, type TaskWithAssignee, type Column } from "./TaskEditModal";
 import LabelBadge from "./LabelBadge";
 
 const priorityColor = {
@@ -29,6 +29,7 @@ export default function TaskCard({
   members = [],
   workspaceLabels = [],
   workspaceId,
+  columns = [],
   setTasks,
 }: {
   task: TaskWithAssignee;
@@ -36,6 +37,7 @@ export default function TaskCard({
   members?: MemberUser[];
   workspaceLabels?: WorkspaceLabel[];
   workspaceId?: string;
+  columns?: Column[];
   setTasks: React.Dispatch<React.SetStateAction<TaskWithAssignee[]>>;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -173,6 +175,7 @@ export default function TaskCard({
           members={members}
           workspaceLabels={workspaceLabels}
           workspaceId={workspaceId}
+          columns={columns}
           onClose={() => setEditing(false)}
           onSave={(updated) => setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))}
         />

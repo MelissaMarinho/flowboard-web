@@ -27,12 +27,15 @@ export interface MemberUser {
   image: string | null;
 }
 
+export interface Column {
+  id: string;
+  name: string;
+  color: string;
+  order: number;
+  projectId: string;
+}
+
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
-const STATUSES = [
-  { value: "TODO", label: "To Do" },
-  { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "DONE", label: "Done" },
-] as const;
 
 const PRESET_COLORS = [
   "#6366f1", "#8b5cf6", "#ec4899", "#ef4444",
@@ -45,6 +48,7 @@ export default function TaskEditModal({
   members = [],
   workspaceLabels = [],
   workspaceId,
+  columns = [],
   onClose,
   onSave,
 }: {
@@ -52,13 +56,14 @@ export default function TaskEditModal({
   members?: MemberUser[];
   workspaceLabels?: WorkspaceLabel[];
   workspaceId?: string;
+  columns?: Column[];
   onClose: () => void;
   onSave: (updated: TaskWithAssignee) => void;
 }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? "");
   const [priority, setPriority] = useState(task.priority);
-  const [status, setStatus] = useState(task.status);
+  const [status, setStatus] = useState<string>(task.status);
   const [assigneeId, setAssigneeId] = useState(task.assigneeId ?? "");
   const [dueDate, setDueDate] = useState(
     task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""
@@ -209,11 +214,11 @@ export default function TaskEditModal({
               <select
                 id="edit-status"
                 value={status}
-                onChange={(e) => setStatus(e.target.value as Task["status"])}
+                onChange={(e) => setStatus(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
               >
-                {STATUSES.map((s) => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
+                {(columns ?? []).map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>

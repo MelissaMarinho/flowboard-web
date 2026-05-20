@@ -7,7 +7,7 @@ import TaskEditModal from "./TaskEditModal";
 import TaskComments from "./TaskComments";
 import SubTaskList from "./SubTaskList";
 import LabelBadge from "./LabelBadge";
-import type { TaskWithAssignee, MemberUser, WorkspaceLabel } from "./TaskEditModal";
+import type { TaskWithAssignee, MemberUser, WorkspaceLabel, Column } from "./TaskEditModal";
 
 type ActivityType = "TASK_CREATED" | "TASK_UPDATED" | "TASK_DELETED" | "AI_SUMMARY_GENERATED";
 
@@ -23,18 +23,6 @@ const priorityColor: Record<string, string> = {
   LOW: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
   MEDIUM: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   HIGH: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-};
-
-const statusColor: Record<string, string> = {
-  TODO: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
-  IN_PROGRESS: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  DONE: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-600",
-};
-
-const statusLabel: Record<string, string> = {
-  TODO: "To Do",
-  IN_PROGRESS: "In Progress",
-  DONE: "Done",
 };
 
 const activityConfig: Record<ActivityType, {
@@ -91,6 +79,7 @@ export default function TaskDetailClient({
   currentUserId,
   projectKey,
   taskNumber,
+  columns,
 }: {
   task: TaskWithAssignee;
   activities: ActivityEntry[];
@@ -101,9 +90,11 @@ export default function TaskDetailClient({
   currentUserId: string;
   projectKey?: string;
   taskNumber?: number;
+  columns: Column[];
 }) {
   const [task, setTask] = useState<TaskWithAssignee>(initialTask);
   const [editing, setEditing] = useState(false);
+  const currentColumn = columns.find((c) => c.id === task.status);
 
   return (
     <div className="space-y-6">
@@ -210,8 +201,11 @@ export default function TaskDetailClient({
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
               Status
             </p>
-            <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor[task.status]}`}>
-              {statusLabel[task.status] ?? task.status}
+            <span
+              className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
+              style={{ backgroundColor: currentColumn?.color ?? "#94a3b8" }}
+            >
+              {currentColumn?.name ?? task.status}
             </span>
           </div>
 
@@ -276,6 +270,7 @@ export default function TaskDetailClient({
           members={members}
           workspaceLabels={workspaceLabels}
           workspaceId={workspaceId}
+          columns={columns}
           onClose={() => setEditing(false)}
           onSave={(updated) => setTask(updated)}
         />

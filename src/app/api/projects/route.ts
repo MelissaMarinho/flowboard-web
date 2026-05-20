@@ -55,8 +55,18 @@ export async function POST(req: Request) {
     key = `${key}${count + 1}`;
   }
 
-  const project = await prisma.project.create({
-    data: { name, description, workspaceId, key },
+  const project = await prisma.$transaction(async (tx) => {
+    const p = await tx.project.create({
+      data: { name, description, workspaceId, key },
+    });
+    await tx.column.createMany({
+      data: [
+        { name: "To Do",       color: "#94a3b8", order: 0, projectId: p.id },
+        { name: "In Progress", color: "#f59e0b", order: 1, projectId: p.id },
+        { name: "Done",        color: "#22c55e", order: 2, projectId: p.id },
+      ],
+    });
+    return p;
   });
 
   return NextResponse.json(project, { status: 201 });
