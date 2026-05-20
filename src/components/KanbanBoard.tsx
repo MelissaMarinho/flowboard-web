@@ -6,9 +6,10 @@ import {
   PointerSensor, TouchSensor, useSensor, useSensors,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, Search, X, LayoutGrid, Rows3 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import KanbanColumn from "./KanbanColumn";
+import TaskEditModal from "./TaskEditModal";
 import type { MemberUser, WorkspaceLabel, TaskWithAssignee, Column } from "./TaskEditModal";
 
 type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
@@ -42,6 +43,9 @@ export default function KanbanBoard({
   const [labelFilter, setLabelFilter] = useState("");
   const [activeId, setActiveId] = useState<string | null>(null);
   const [columnErrors, setColumnErrors] = useState<Record<string, string>>({});
+  const [viewMode, setViewMode] = useState<"board" | "swimlane">("board");
+  const [swimlaneGroup, setSwimlaneGroup] = useState<"assignee" | "priority">("assignee");
+  const [swimlaneEditingTask, setSwimlaneEditingTask] = useState<TaskWithAssignee | null>(null);
 
   // Add column state
   const [addingColumn, setAddingColumn] = useState(false);
@@ -221,9 +225,85 @@ export default function KanbanBoard({
             )}
           </button>
         )}
+
+        {/* View mode toggle */}
+        <div className="ml-auto flex items-center rounded-lg border border-gray-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-800">
+          <button
+            onClick={() => setViewMode("board")}
+            title="Board view"
+            className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              viewMode === "board"
+                ? "bg-indigo-600 text-white"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" />
+            Board
+          </button>
+          <button
+            onClick={() => setViewMode("swimlane")}
+            title="Swimlane view"
+            className={`flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-medium transition-colors ${
+              viewMode === "swimlane"
+                ? "bg-indigo-600 text-white"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            <Rows3 className="h-3.5 w-3.5" />
+            Swimlanes
+          </button>
+        </div>
       </div>
 
+      {/* Swimlane view */}
+      {viewMode === "swimlane" && (
+        <>
+          {/* Group-by toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400 dark:text-gray-500">Group by:</span>
+            {(["assignee", "priority"] as const).map((g) => (
+              <button
+                key={g}
+                onClick={() => setSwimlaneGroup(g)}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  swimlaneGroup === g
+                    ? "bg-indigo-600 text-white"
+                    : "border border-gray-200 bg-white text-gray-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                }`}
+              >
+                {g.charAt(0).toUpperCase() + g.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          <SwimlaneBoard
+            tasks={filteredTasks}
+            columns={columns}
+            members={members}
+            groupBy={swimlaneGroup}
+            projectKey={projectKey}
+            onEditTask={(t) => setSwimlaneEditingTask(t)}
+          />
+
+          {swimlaneEditingTask && (
+            <TaskEditModal
+              task={swimlaneEditingTask}
+              members={members}
+              workspaceLabels={workspaceLabels}
+              workspaceId={workspaceId}
+              columns={columns}
+              onClose={() => setSwimlaneEditingTask(null)}
+              onSave={(updated) => {
+                setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+                setSwimlaneEditingTask(null);
+              }}
+            />
+          )}
+        </>
+      )}
+
       {/* Board */}
+      {viewMode === "board" && (
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex gap-6 overflow-x-auto pb-4">
           {columns.map((col) => {
@@ -345,6 +425,153 @@ export default function KanbanBoard({
           })() : null}
         </DragOverlay>
       </DndContext>
+      )}
+    </div>
+  );
+}
+
+// ─── Swimlane sub-component ─────────────────────────────────────────────────
+
+const PRIORITY_ROWS = ["HIGH", "MEDIUM", "LOW"] as const;
+const PRIORITY_LABEL: Record<string, string> = { HIGH: "High", MEDIUM: "Medium", LOW: "Low" };
+const PRIORITY_COLOR: Record<string, string> = {
+  HIGH: "text-red-600 dark:text-red-400",
+  MEDIUM: "text-amber-600 dark:text-amber-400",
+  LOW: "text-gray-500 dark:text-gray-400",
+};
+
+function SwimlaneBoard({
+  tasks,
+  columns,
+  members,
+  groupBy,
+  projectKey,
+  onEditTask,
+}: {
+  tasks: TaskWithAssignee[];
+  columns: Column[];
+  members: { id: string; name: string | null; image: string | null }[];
+  groupBy: "assignee" | "priority";
+  projectKey?: string;
+  onEditTask: (task: TaskWithAssignee) => void;
+}) {
+  // Build row groups
+  const rows: { key: string; label: string; labelColor?: string }[] =
+    groupBy === "priority"
+      ? PRIORITY_ROWS.map((p) => ({ key: p, label: PRIORITY_LABEL[p], labelColor: PRIORITY_COLOR[p] }))
+      : [
+          { key: "unassigned", label: "Unassigned" },
+          ...members.map((m) => ({ key: m.id, label: m.name ?? m.id })),
+        ];
+
+  function matchesRow(task: TaskWithAssignee, rowKey: string): boolean {
+    if (groupBy === "priority") {
+      return (task as unknown as { priority: string }).priority === rowKey;
+    }
+    if (rowKey === "unassigned") return !task.assigneeId;
+    return task.assigneeId === rowKey;
+  }
+
+  return (
+    <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+      <table className="w-full min-w-max border-collapse">
+        <thead>
+          <tr className="border-b border-gray-100 dark:border-gray-800">
+            <th className="w-36 border-r border-gray-100 px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-400 dark:border-gray-800 dark:text-gray-500">
+              {groupBy === "assignee" ? "Assignee" : "Priority"}
+            </th>
+            {columns.map((col) => (
+              <th
+                key={col.id}
+                className="min-w-[200px] px-4 py-2.5 text-left"
+              >
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                  style={{ backgroundColor: `${col.color}22`, color: col.color }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: col.color }} />
+                  {col.name}
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, ri) => {
+            const isLast = ri === rows.length - 1;
+            return (
+              <tr
+                key={row.key}
+                className={!isLast ? "border-b border-gray-100 dark:border-gray-800" : ""}
+              >
+                {/* Row label */}
+                <td className="border-r border-gray-100 px-4 py-3 align-top dark:border-gray-800">
+                  {groupBy === "assignee" && row.key !== "unassigned" ? (
+                    (() => {
+                      const member = members.find((m) => m.id === row.key);
+                      return (
+                        <div className="flex items-center gap-2">
+                          {member?.image ? (
+                            <img src={member.image} alt={member.name ?? ""} className="h-6 w-6 rounded-full" />
+                          ) : (
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                              {(member?.name ?? "?")[0].toUpperCase()}
+                            </div>
+                          )}
+                          <span className="whitespace-nowrap text-xs font-medium text-gray-700 dark:text-gray-300">
+                            {row.label}
+                          </span>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <span className={`whitespace-nowrap text-xs font-semibold ${row.labelColor ?? "text-gray-500 dark:text-gray-400"}`}>
+                      {row.label}
+                    </span>
+                  )}
+                </td>
+
+                {/* Cells */}
+                {columns.map((col) => {
+                  const cellTasks = tasks.filter(
+                    (t) => t.status === col.id && matchesRow(t, row.key),
+                  );
+                  return (
+                    <td key={col.id} className="p-2 align-top">
+                      <div className="space-y-1.5">
+                        {cellTasks.map((task) => {
+                          const tAny = task as unknown as { priority: string; number: number };
+                          return (
+                            <button
+                              key={task.id}
+                              onClick={() => onEditTask(task)}
+                              className="flex w-full items-start gap-2 rounded-lg border border-gray-100 bg-gray-50 px-2.5 py-2 text-left hover:border-indigo-200 hover:bg-indigo-50/50 dark:border-gray-800 dark:bg-gray-800/60 dark:hover:border-indigo-700 dark:hover:bg-indigo-950/30 transition-colors"
+                            >
+                              <span className="min-w-0 flex-1">
+                                {projectKey && tAny.number > 0 && (
+                                  <span className="mr-1 font-mono text-[10px] text-gray-400">
+                                    {projectKey}-{tAny.number}
+                                  </span>
+                                )}
+                                <span className="line-clamp-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                                  {task.title}
+                                </span>
+                              </span>
+                            </button>
+                          );
+                        })}
+                        {cellTasks.length === 0 && (
+                          <div className="h-8 rounded-lg border border-dashed border-gray-100 dark:border-gray-800" />
+                        )}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
