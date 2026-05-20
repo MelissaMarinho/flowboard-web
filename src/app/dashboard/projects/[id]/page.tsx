@@ -4,6 +4,7 @@ import KanbanBoard from "@/components/KanbanBoard";
 import AISummaryButton from "@/components/AISummaryButton";
 import AIPrioritizeButton from "@/components/AIPrioritizeButton";
 import ActivityFeed from "@/components/ActivityFeed";
+import ExportCsvButton from "@/components/ExportCsvButton";
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -40,6 +41,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           )}
         </div>
         <div className="flex items-center gap-2">
+          <ExportCsvButton projectId={project.id} projectName={project.name} />
           <AIPrioritizeButton projectId={project.id} />
           <AISummaryButton projectId={project.id} />
         </div>
