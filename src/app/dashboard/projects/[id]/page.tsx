@@ -51,6 +51,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href={`/dashboard/projects/${project.id}/list`}
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+          >
+            List
+          </Link>
+          <Link
             href={`/dashboard/projects/${project.id}/sprints`}
             className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
           >
@@ -67,6 +73,18 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
             className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
           >
             Gantt
+          </Link>
+          <Link
+            href={`/dashboard/projects/${project.id}/analytics`}
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+          >
+            Analytics
+          </Link>
+          <Link
+            href={`/dashboard/projects/${project.id}/activity`}
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+          >
+            Activity
           </Link>
           <Link
             href={`/dashboard/projects/${project.id}/chat`}
