@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Check, UserPlus, MessageSquare } from "lucide-react";
 
@@ -38,19 +38,22 @@ export default function NotificationBell() {
   const panelRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const res = await fetch("/api/notifications");
-      if (res.ok) setNotifications(await res.json());
-    } catch {}
-  }, []);
-
   // Initial fetch + poll every 30s
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30_000);
-    return () => clearInterval(interval);
-  }, [fetchNotifications]);
+    let cancelled = false;
+    async function load() {
+      try {
+        const res = await fetch("/api/notifications");
+        if (res.ok && !cancelled) setNotifications(await res.json());
+      } catch {}
+    }
+    load();
+    const interval = setInterval(load, 30_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Close panel on outside click
   useEffect(() => {
