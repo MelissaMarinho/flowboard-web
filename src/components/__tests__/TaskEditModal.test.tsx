@@ -17,6 +17,7 @@ const mockTask = {
   assignee: null,
   number: 0,
   sprintId: null,
+  points: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

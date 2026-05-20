@@ -80,6 +80,9 @@ export default function TaskEditModal({
     task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""
   );
   const [sprintId, setSprintId] = useState((task as unknown as { sprintId: string | null }).sprintId ?? "");
+  const [points, setPoints] = useState<number | "">(
+    (task as unknown as { points?: number | null }).points ?? "",
+  );
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>(
     (task.labels ?? []).map((tl) => tl.label.id)
   );
@@ -166,6 +169,7 @@ export default function TaskEditModal({
           dueDate: dueDate || null,
           labelIds: selectedLabelIds,
           sprintId: sprintId || null,
+          points: points !== "" ? points : null,
         }),
       });
       if (!res.ok) throw new Error("Failed to save");
@@ -280,6 +284,27 @@ export default function TaskEditModal({
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             />
+          </div>
+
+          <div>
+            <label htmlFor="edit-points" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Story Points
+            </label>
+            <select
+              id="edit-points"
+              value={points}
+              onChange={(e) =>
+                setPoints(e.target.value === "" ? "" : Number(e.target.value))
+              }
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
+            >
+              <option value="">No estimate</option>
+              {[1, 2, 3, 5, 8, 13, 21].map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
           </div>
 
           {sprints.filter((s) => s.status !== "COMPLETED").length > 0 && (

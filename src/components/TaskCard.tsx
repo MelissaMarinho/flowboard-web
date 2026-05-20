@@ -142,6 +142,11 @@ export default function TaskCard({
             <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor[task.priority]}`}>
               {task.priority}
             </span>
+            {(task as unknown as { points?: number | null }).points != null && (
+              <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+                {(task as unknown as { points: number }).points}pt
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
             {due && (

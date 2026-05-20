@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { title, description, status, priority, projectId, assigneeId, dueDate } = await req.json();
+  const { title, description, status, priority, projectId, assigneeId, dueDate, points } = await req.json();
   if (!title || !projectId) return NextResponse.json({ error: "title and projectId required" }, { status: 400 });
 
   const task = await prisma.$transaction(async (tx) => {
@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         projectId,
         assigneeId: assigneeId ?? null,
         dueDate: dueDate ? new Date(dueDate) : null,
+        points: points ?? null,
         number: project.taskCount,
       },
       include: {
