@@ -30,7 +30,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const isMember = project.workspace.members.some((m) => m.userId === session.user.id);
+  const isMember = project.workspace.members.some((m) => m.userId === session.user!.id);
   if (!isMember) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const tasks = await prisma.task.findMany({
