@@ -16,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { User } from "next-auth";
 import ThemeToggle from "./ThemeToggle";
+import NotificationBell from "./NotificationBell";
 
 interface Workspace {
   id: string;
@@ -46,7 +47,10 @@ export default function Sidebar({
       {/* Logo */}
       <div className="mb-2 flex items-center justify-between px-2">
         <span className="text-lg font-bold text-indigo-600">FlowBoard</span>
-        <ThemeToggle />
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <ThemeToggle />
+        </div>
       </div>
 
       {/* Workspace switcher */}

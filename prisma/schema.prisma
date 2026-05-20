@@ -22,6 +22,7 @@ model User {
   AISummary        AISummary[]
   activities       ActivityLog[]
   comments         Comment[]
+  notifications    Notification[]
 }
 
 model Account {
@@ -201,4 +202,24 @@ enum ActivityType {
   TASK_UPDATED
   TASK_DELETED
   AI_SUMMARY_GENERATED
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_COMMENTED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String?
+  read      Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
 }

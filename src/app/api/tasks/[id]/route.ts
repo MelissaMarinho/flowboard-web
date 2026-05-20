@@ -56,9 +56,28 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       .create({
         data: {
           projectId: current.projectId,
-          userId: session.user.id,
+          userId: session.user!.id,
           type: "TASK_UPDATED",
           meta: { taskId: id, taskTitle: task.title, changes },
+        },
+      })
+      .catch(() => {});
+  }
+
+  // Notify new assignee (if changed and not assigning to yourself)
+  if (
+    body.assigneeId &&
+    body.assigneeId !== current.assigneeId &&
+    body.assigneeId !== session.user!.id
+  ) {
+    prisma.notification
+      .create({
+        data: {
+          userId: body.assigneeId,
+          type: "TASK_ASSIGNED",
+          title: "You were assigned a task",
+          body: task.title,
+          link: `/dashboard/projects/${current.projectId}/tasks/${id}`,
         },
       })
       .catch(() => {});
@@ -83,7 +102,7 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
     .create({
       data: {
         projectId: task.projectId,
-        userId: session.user.id,
+        userId: session.user!.id,
         type: "TASK_DELETED",
         meta: { taskTitle: task.title },
       },

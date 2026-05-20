@@ -5,7 +5,12 @@ import { prisma } from "@/lib/prisma";
 async function getTaskWorkspace(taskId: string) {
   return prisma.task.findUnique({
     where: { id: taskId },
-    select: { project: { select: { workspaceId: true } } },
+    select: {
+      title: true,
+      assigneeId: true,
+      projectId: true,
+      project: { select: { workspaceId: true } },
+    },
   });
 }
 
@@ -56,10 +61,27 @@ export async function POST(
   const membership = await checkMembership(task.project.workspaceId, session.user!.id);
   if (!membership) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const comment = await prisma.comment.create({
-    data: { content: content.trim(), taskId, userId: session.user!.id },
-    include: { user: { select: { id: true, name: true, image: true } } },
-  });
+  const [comment] = await Promise.all([
+    prisma.comment.create({
+      data: { content: content.trim(), taskId, userId: session.user!.id },
+      include: { user: { select: { id: true, name: true, image: true } } },
+    }),
+  ]);
+
+  // Notify task assignee if they're not the one commenting
+  if (task.assigneeId && task.assigneeId !== session.user!.id) {
+    prisma.notification
+      .create({
+        data: {
+          userId: task.assigneeId,
+          type: "TASK_COMMENTED",
+          title: "New comment on your task",
+          body: `${comment.user.name ?? "Someone"}: ${content.trim().slice(0, 120)}`,
+          link: `/dashboard/projects/${task.projectId}/tasks/${taskId}`,
+        },
+      })
+      .catch(() => {});
+  }
 
   return NextResponse.json(comment, { status: 201 });
 }
