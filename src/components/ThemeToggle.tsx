@@ -1,15 +1,23 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
-import { useEffect, useState } from "react";
+
+// useSyncExternalStore-based mount check: server snapshot returns false,
+// client snapshot returns true — no setState, no cascading render.
+function useHasMounted() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+}
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHasMounted();
 
-  // Avoid hydration mismatch — only render icon after mount
-  useEffect(() => setMounted(true), []);
   if (!mounted) return <div className="h-8 w-8" />;
 
   return (
