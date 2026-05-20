@@ -15,6 +15,7 @@ const mockTask = {
   projectId: "proj-1",
   assigneeId: null,
   assignee: null,
+  number: 0,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
