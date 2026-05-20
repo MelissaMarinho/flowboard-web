@@ -56,6 +56,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           >
             Sprints
           </Link>
+          <Link
+            href={`/dashboard/projects/${project.id}/calendar`}
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+          >
+            Calendar
+          </Link>
           <ExportCsvButton projectId={project.id} projectName={project.name} />
           <AIPrioritizeButton projectId={project.id} />
           <AISummaryButton projectId={project.id} />
