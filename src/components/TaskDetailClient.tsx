@@ -255,6 +255,22 @@ export default function TaskDetailClient({
 
           <div>
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+              Sprint
+            </p>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {(task as unknown as { sprintId: string | null }).sprintId ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                  Sprint assigned
+                </span>
+              ) : (
+                <span className="text-gray-400 dark:text-gray-500">Backlog</span>
+              )}
+            </span>
+          </div>
+
+          <div>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
               Created
             </p>
             <span className="text-sm text-gray-700 dark:text-gray-300">

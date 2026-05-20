@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import KanbanBoard from "@/components/KanbanBoard";
 import AISummaryButton from "@/components/AISummaryButton";
 import AIPrioritizeButton from "@/components/AIPrioritizeButton";
@@ -49,6 +50,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           )}
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href={`/dashboard/projects/${project.id}/sprints`}
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
+          >
+            Sprints
+          </Link>
           <ExportCsvButton projectId={project.id} projectName={project.name} />
           <AIPrioritizeButton projectId={project.id} />
           <AISummaryButton projectId={project.id} />

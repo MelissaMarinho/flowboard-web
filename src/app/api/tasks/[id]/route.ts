@@ -32,6 +32,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       ...(body.priority !== undefined && { priority: body.priority }),
       ...(body.assigneeId !== undefined && { assigneeId: body.assigneeId }),
       ...(body.dueDate !== undefined && { dueDate: body.dueDate ? new Date(body.dueDate) : null }),
+      ...(body.sprintId !== undefined && { sprintId: body.sprintId }),
     },
     include: {
       assignee: { select: { id: true, name: true, image: true } },

@@ -35,6 +35,17 @@ export interface Column {
   projectId: string;
 }
 
+export interface Sprint {
+  id: string;
+  name: string;
+  goal: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: "PLANNING" | "ACTIVE" | "COMPLETED";
+  projectId: string;
+  createdAt: string;
+}
+
 const PRIORITIES = ["LOW", "MEDIUM", "HIGH"] as const;
 
 const PRESET_COLORS = [
@@ -68,12 +79,30 @@ export default function TaskEditModal({
   const [dueDate, setDueDate] = useState(
     task.dueDate ? new Date(task.dueDate).toISOString().split("T")[0] : ""
   );
+  const [sprintId, setSprintId] = useState((task as unknown as { sprintId: string | null }).sprintId ?? "");
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>(
     (task.labels ?? []).map((tl) => tl.label.id)
   );
   const [availableLabels, setAvailableLabels] = useState<WorkspaceLabel[]>(workspaceLabels);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const [sprints, setSprints] = useState<Sprint[]>([]);
+
+  useEffect(() => {
+    async function loadSprints() {
+      try {
+        const res = await fetch(`/api/projects/${task.projectId}/sprints`);
+        if (res.ok) {
+          const data: unknown = await res.json();
+          if (Array.isArray(data)) setSprints(data as Sprint[]);
+        }
+      } catch {
+        // silently ignore
+      }
+    }
+    loadSprints();
+  }, [task.projectId]);
 
   // Label picker state
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -136,6 +165,7 @@ export default function TaskEditModal({
           assigneeId: assigneeId || null,
           dueDate: dueDate || null,
           labelIds: selectedLabelIds,
+          sprintId: sprintId || null,
         }),
       });
       if (!res.ok) throw new Error("Failed to save");
@@ -251,6 +281,29 @@ export default function TaskEditModal({
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
             />
           </div>
+
+          {sprints.filter((s) => s.status !== "COMPLETED").length > 0 && (
+            <div>
+              <label htmlFor="edit-sprint" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                Sprint
+              </label>
+              <select
+                id="edit-sprint"
+                value={sprintId}
+                onChange={(e) => setSprintId(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-indigo-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400"
+              >
+                <option value="">Backlog (no sprint)</option>
+                {sprints
+                  .filter((s) => s.status !== "COMPLETED")
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}{s.status === "ACTIVE" ? " 🟢" : ""}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
 
           {/* Labels */}
           <div>
