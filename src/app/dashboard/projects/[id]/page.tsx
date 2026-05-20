@@ -68,6 +68,12 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           >
             Gantt
           </Link>
+          <Link
+            href={`/dashboard/projects/${project.id}/chat`}
+            className="flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900 transition-colors"
+          >
+            AI Chat
+          </Link>
           <ExportCsvButton projectId={project.id} projectName={project.name} />
           <AIPrioritizeButton projectId={project.id} />
           <AISummaryButton projectId={project.id} />
