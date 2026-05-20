@@ -1,15 +1,14 @@
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { notFound, redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { notFound } from "next/navigation";
 import CalendarView from "@/components/CalendarView";
 import type { TaskWithAssignee } from "@/components/TaskEditModal";
 
 export default async function CalendarPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/auth/signin");
+  const session = await auth();
+  if (!session?.user?.id) notFound();
 
   const project = await prisma.project.findUnique({
     where: { id },
